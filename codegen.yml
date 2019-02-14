@@ -1,0 +1,21 @@
+overwrite: true
+generates:
+  src/generated/vendure-types.ts:
+    schema: "../vendure/schema.json"
+    documents: "./src/gql-documents.ts"
+    plugins:
+      - add: "// tslint:disable"
+      - "typescript-common"
+      - "typescript-client"
+    config:
+      namingConvention:
+        enumValues: "keep"
+  src/generated/falcon-types.ts:
+    schema: "./src/falcon-shop-schema.graphql"
+    plugins:
+      - add: "// tslint:disable"
+      - "typescript-common"
+      - "typescript-server"
+    config:
+      namingConvention:
+        enumValues: "keep"
