@@ -1,0 +1,38 @@
+{
+  "debug": true,
+  "port": 4000,
+  "logLevel": "info",
+  "verboseEvents": false,
+  "endpoints": {},
+  "apis": {
+    "vendure-api": {
+      "package": "../../deity-falcon-vendure-api",
+      "config": {
+        "host": "localhost",
+        "port": 5000,
+        "apiPath": "api",
+        "protocol": "http"
+      }
+    }
+  },
+  "extensions": {
+    "shop": {
+      "package": "@deity/falcon-shop-extension",
+      "config": {
+        "api": "vendure-api"
+      }
+    }
+  },
+  "session": {
+    "keys": ["secret key"],
+    "options": {
+      "key": "session-key",
+      "maxAge": 86400000,
+      "overwrite": true,
+      "httpOnly": true,
+      "signed": true,
+      "rolling": false,
+      "renew": false
+    }
+  }
+}

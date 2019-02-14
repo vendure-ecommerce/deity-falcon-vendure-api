@@ -16,31 +16,7 @@ Currently I have implemented basic product list & detail views. It is very exper
 ## Testing
 
 1. Assumes a Vendure server running on port 5000 with the GraphQL api set to "api".
-2. Set the Falcon server config like this:
-    ```json
-    {
-      "apis": {
-        "vendure-api": {
-          "package": "../../deity-falcon-vendure-api",
-          "config": {
-            "host": "localhost",
-            "port": 5000,
-            "apiPath": "api",
-            "protocol": "http"
-          }
-        }
-      },
-      "extensions": {
-        "shop": {
-          "package": "@deity/falcon-shop-extension",
-          "config": {
-            "api": "vendure-api"
-          }
-        }
-      }
-    }
-    ```
-    Note that the path to the "vendure-api" package varies according to the relative locations of this repo and the Falcon server.
+2. Start the Falcon server `cd server && node index`
 3. The menu config for Falcon client can be configured like this:
     ```json
     {
@@ -62,3 +38,4 @@ Currently I have implemented basic product list & detail views. It is very exper
       ]
     }
     ```
+4. Start the Falcon client (client is not included in this repo to keep things minimal)

@@ -8,8 +8,19 @@ import {
 import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/src/models/ApiDataSource';
 import { ApiDataSourceConfig, ConfigurableConstructorParams } from '@deity/falcon-server-env/src/types';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
+import { addResolveFunctionsToSchema } from 'graphql-tools';
 
-import { Cart, Category, CategoryQueryArgs, Customer, Product, ProductQueryArgs } from './generated/falcon-types';
+import {
+    Cart,
+    Category,
+    CategoryQueryArgs,
+    Customer,
+    Product,
+    ProductList,
+    ProductQueryArgs,
+    ProductsCategoryArgs,
+    ProductsQueryArgs,
+} from './generated/falcon-types';
 import {
     GetCategoriesList,
     GetProduct,
@@ -35,6 +46,19 @@ module.exports = class VendureApi extends ApiDataSource {
 
     constructor(private params: VendureApiParams) {
         super(params);
+        this.addTypeResolvers();
+    }
+
+    /**
+     * Adds additional resolve functions to the stitched GQL schema for the sake of data-splitting
+     */
+    addTypeResolvers() {
+        const resolvers = {
+            Category: {
+                products: (...args: [Category, ProductsCategoryArgs]) => this.categoryProducts(...args),
+            },
+        };
+        addResolveFunctionsToSchema({ schema: (this.gqlServerConfig as any).schema, resolvers });
     }
 
     getFetchUrlPriority(url: string): number {
@@ -73,6 +97,18 @@ module.exports = class VendureApi extends ApiDataSource {
     async category(obj: any, args: CategoryQueryArgs): Promise<Category> {
         const allCategories = await this.getAllCategories();
         const matchingCategory = allCategories.find(c => c.id === args.id);
+        return {
+            id: matchingCategory ? matchingCategory.id : '',
+            name: matchingCategory ? matchingCategory.name : '',
+            children: matchingCategory ? matchingCategory.children : [],
+            description: matchingCategory ? matchingCategory.description : '',
+            breadcrumbs: [],
+        };
+    }
+
+    async categoryProducts(obj: Category, args: ProductsCategoryArgs): Promise<ProductList> {
+        const allCategories = await this.getAllCategories();
+        const matchingCategory = allCategories.find(c => c.id === obj.id);
         let facetValueIds: string[] = [];
         if (matchingCategory) {
             facetValueIds = matchingCategory.facetValues.map(fv => fv.id)
@@ -87,23 +123,17 @@ module.exports = class VendureApi extends ApiDataSource {
         });
 
         return {
-            id: matchingCategory ? matchingCategory.id : '',
-            name: matchingCategory ? matchingCategory.name : '',
-            children: matchingCategory ? matchingCategory.children : [],
-            description: matchingCategory ? matchingCategory.description : '',
-            breadcrumbs: [],
-            products: {
-                items: response.search.items.map(i => searchResultToProduct(i)),
-                aggregations: [],
-                pagination: {
-                    totalItems: response.search.totalItems,
-                    currentPage: 1,
-                    nextPage: 2,
-                    perPage: 20,
-                    totalPages: 25,
-                },
+            items: response.search.items.map(i => searchResultToProduct(i)),
+            aggregations: [],
+            pagination: {
+                totalItems: response.search.totalItems,
+                currentPage: 1,
+                nextPage: 2,
+                perPage: 20,
+                totalPages: 25,
             },
         };
+
     }
 
     async product(obj: any, args: ProductQueryArgs) {

@@ -7,18 +7,18 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@deity/falcon-errors": "^0.1.1",
-    "@deity/falcon-logger": "^0.1.1",
-    "@deity/falcon-server-env": "^0.1.1",
-    "graphql": "^14.1.1",
-    "graphql-tag": "^2.10.1",
-    "graphql-tools": "^4.0.4"
+    "concurrently": "^4.1.0",
+    "graphql-tag": "^2.10.1"
   },
   "devDependencies": {
+    "@deity/falcon-server": "^0.1.2",
+    "@deity/falcon-shop-extension": "^0.2.0",
     "@types/eventemitter2": "^4.1.0",
     "@types/graphql": "^14.0.7",
     "@types/koa-router": "^7.0.39",
     "@types/node": "^11.9.3",
+    "config": "^3.0.1",
+    "cross-env": "^5.2.0",
     "graphql-code-generator": "^0.16.1",
     "graphql-codegen-add": "^0.16.1",
     "graphql-codegen-typescript-client": "^0.16.1",
@@ -30,5 +30,8 @@
   "scripts": {
     "start:dev": "concurrently -n tsc,gql-gen -c green,cyan \"tsc -w\"  \"gql-gen --config codegen.yml --watch\"",
     "generate-types": "gql-gen --config codegen.yml"
+  },
+  "resolutions": {
+    "apollo-env": "0.3.1"
   }
 }
