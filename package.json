@@ -28,7 +28,8 @@
     "typescript": "^3.3.3"
   },
   "scripts": {
-    "start:dev": "concurrently -n tsc,gql-gen -c green,cyan \"tsc -w\"  \"gql-gen --config codegen.yml --watch\"",
+    "start:dev": "concurrently -n tsc,gql-gen,server -c green,cyan,blue \"tsc -w\"  \"gql-gen --config codegen.yml --watch\" \"yarn server\"",
+    "server": "cd server && nodemon --watch ../dist index.js",
     "generate-types": "gql-gen --config codegen.yml"
   },
   "resolutions": {
