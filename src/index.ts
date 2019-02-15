@@ -1,49 +1,49 @@
-import {
-    ApiDataSource,
-    ApiUrlPriority,
-    FetchUrlParams,
-    FetchUrlResult,
-    GraphQLContext,
-} from '@deity/falcon-server-env';
-import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/src/models/ApiDataSource';
-import { ConfigurableConstructorParams } from '@deity/falcon-server-env/src/types';
-import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
+import { ApiUrlPriority, FetchUrlParams, FetchUrlResult, GraphQLContext } from '@deity/falcon-server-env';
+import { GraphQLResolveInfo } from 'graphql';
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
+    AddToCartMutationArgs,
     Cart,
+    CartItemPayload,
     Category,
     CategoryQueryArgs,
     Customer,
     ProductList,
     ProductQueryArgs,
     ProductsCategoryArgs,
-    SortOrderDirection,
+    SortOrderDirection, UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
 import {
+    AddToOrder, AdjustItemQty,
+    GetActiveOrder,
     GetCategoriesList,
     GetProduct,
     SearchProducts,
     SearchResultSortParameter,
     SortOrder,
 } from './generated/vendure-types';
-import { GET_ALL_CATEGORIES, GET_PRODUCT, SEARCH_PRODUCTS } from './gql-documents';
-import { searchResultToProduct, vendureProductToProduct } from './utils';
+import {
+    ACTIVE_ORDER,
+    ADD_TO_ORDER,
+    ADJUST_ITEM_QTY,
+    GET_ALL_CATEGORIES,
+    GET_PRODUCT,
+    SEARCH_PRODUCTS,
+} from './gql-documents';
+import { orderToCart, partialOrderToCartItem, searchResultToProduct, vendureProductToProduct } from './utils';
+import { VendureApiBase, VendureApiParams } from './vendure-api-base';
 
-export interface VendureApiConfig {
-    host: string;
-    port: number;
-    apiPath: string;
-    protocol: 'http' | 'https';
-}
+let allCategoriesCache: Promise<GetCategoriesList.Items[]> | undefined;
+// Falcon specifies products by sku, whereas Vendure
+// deals with ids. Therefore we need to map between them.
+// Each time a ProductVariant is loaded, we need to add to
+// this map.
+const skuMap = new Map<string, string>();
 
-export type VendureApiParams = ConfigurableContainerConstructorParams & ConfigurableConstructorParams<VendureApiConfig>;
+module.exports = class VendureApi extends VendureApiBase {
 
-module.exports = class VendureApi extends ApiDataSource {
-
-    private allCategories: Promise<GetCategoriesList.Items[]> | undefined;
-
-    constructor(private params: VendureApiParams) {
+    constructor(params: VendureApiParams) {
         super(params);
         this.addTypeResolvers();
     }
@@ -58,39 +58,6 @@ module.exports = class VendureApi extends ApiDataSource {
             },
         };
         addResolveFunctionsToSchema({ schema: (this.gqlServerConfig as any).schema, resolvers });
-    }
-
-    getFetchUrlPriority(url: string): number {
-        return ApiUrlPriority.HIGH;
-    }
-
-    async fetchUrl(obj: object, args: FetchUrlParams, context: GraphQLContext, info: GraphQLResolveInfo): Promise<FetchUrlResult> {
-        const { path } = args;
-        if (path.indexOf('category/') === 0) {
-            const matches = path.match(/category\/(\d+)/);
-            if (matches) {
-                return {
-                    id: matches[1],
-                    path,
-                    type: `shop-category`,
-                };
-            }
-        }
-        if (path.indexOf('product/') === 0) {
-            const matches = path.match(/product\/(\d+)/);
-            if (matches) {
-                return {
-                    id: matches[1],
-                    path,
-                    type: `shop-product`,
-                };
-            }
-        }
-        return {
-            id: 0,
-            path,
-            type: `shop-category`,
-        };
     }
 
     async category(obj: any, args: CategoryQueryArgs): Promise<Category> {
@@ -153,10 +120,12 @@ module.exports = class VendureApi extends ApiDataSource {
     }
 
     async product(obj: any, args: ProductQueryArgs) {
+        this.session.gotProduct = true;
         const { id } = args;
-        const response = await this.query<GetProduct.Query, GetProduct.Variables>(GET_PRODUCT, { id });
-        if (response.product) {
-            return vendureProductToProduct(response.product);
+        const { product } = await this.query<GetProduct.Query, GetProduct.Variables>(GET_PRODUCT, { id });
+        if (product) {
+            product.variants.forEach(v => skuMap.set(v.sku, v.id));
+            return vendureProductToProduct(product);
         } else {
             return null;
         }
@@ -166,51 +135,57 @@ module.exports = class VendureApi extends ApiDataSource {
         return null as any;
     }
 
+    async addToCart(obj: any, args: AddToCartMutationArgs): Promise<CartItemPayload> {
+        const { input } = args;
+        const variantId = skuMap.get(input.sku);
+        if (!variantId) {
+            throw new Error(`Could not find the id of the product with sku "${input.sku}"`);
+        }
+        const result = await this.query<AddToOrder.Mutation, AddToOrder.Variables>(ADD_TO_ORDER, {
+            id: variantId,
+            qty: input.qty,
+        });
+        if (!result.addItemToOrder) {
+            throw new Error(`Could not add to cart"`);
+        }
+        return partialOrderToCartItem(result.addItemToOrder, variantId);
+    }
+
+    async updateCartItem(obj: any, args: UpdateCartItemMutationArgs): Promise<CartItemPayload> {
+        const { input } = args;
+        const result = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
+            id: input.itemId.toString(),
+            qty: input.qty,
+        });
+        if (!result.adjustItemQuantity) {
+            throw new Error(`Could not adjust cart quantity"`);
+        }
+        return partialOrderToCartItem(result.adjustItemQuantity, input.itemId.toString());
+    }
+
     async cart(): Promise<Cart> {
-        return {
-            active: true,
-            virtual: false,
-            items: [],
-            itemsCount: 0,
-            itemsQty: 0,
-            totals: [],
-            quoteCurrency: 'GBP',
-            couponCode: '',
-            billingAddress: null,
-        };
+        const result = await this.query<GetActiveOrder.Query, GetActiveOrder.Variables>(ACTIVE_ORDER);
+        const order = result.activeOrder;
+        if (!order) {
+            return {
+                items: [],
+            };
+        }
+        return orderToCart(order);
     }
 
     /**
      * Retrieve all available ProductCategories from the Vendure server and cache them.
      */
-    private getAllCategories(): Promise<GetCategoriesList.Items[]> {
-        if (this.allCategories) {
-            return this.allCategories;
+    private async getAllCategories(): Promise<GetCategoriesList.Items[]> {
+        if (allCategoriesCache) {
+            return allCategoriesCache;
         }
-        return this.query<GetCategoriesList.Query, GetCategoriesList.Variables>(GET_ALL_CATEGORIES, {
+        allCategoriesCache = this.query<GetCategoriesList.Query, GetCategoriesList.Variables>(GET_ALL_CATEGORIES, {
             options: {
                 take: 999,
             },
         }).then(res => res.productCategories.items);
-    }
-
-    /**
-     * Make a GraphQL query via POST to the Vendure API.
-     */
-    private async query<T, V extends { [key: string]: any; }>(query: DocumentNode, variables?: V): Promise<T> {
-        const apiPath = this.params.config && this.params.config.apiPath;
-        if (!apiPath) {
-            throw new Error(`No apiPath defined in the Falcon config`);
-        }
-        const response = await this.post(apiPath, {
-            query: print(query),
-            variables,
-        });
-        if (response.errors) {
-            // tslint:disable-next-line:no-console
-            console.log(JSON.stringify(response.errors[0], null, 2));
-            throw new Error(response.errors[0].message);
-        }
-        return response.data;
+        return allCategoriesCache;
     }
 };

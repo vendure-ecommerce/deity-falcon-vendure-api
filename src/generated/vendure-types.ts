@@ -1654,6 +1654,124 @@ export namespace SearchProducts {
   };
 }
 
+export namespace AddToOrder {
+  export type Variables = {
+    id: string;
+    qty: number;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    addItemToOrder: Maybe<AddItemToOrder>;
+  };
+
+  export type AddItemToOrder = PartialOrder.Fragment;
+}
+
+export namespace AdjustItemQty {
+  export type Variables = {
+    id: string;
+    qty: number;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    adjustItemQuantity: Maybe<AdjustItemQuantity>;
+  };
+
+  export type AdjustItemQuantity = PartialOrder.Fragment;
+}
+
+export namespace GetActiveOrder {
+  export type Variables = {};
+
+  export type Query = {
+    __typename?: "Query";
+
+    activeOrder: Maybe<ActiveOrder>;
+  };
+
+  export type ActiveOrder = {
+    __typename?: "Order";
+
+    active: boolean;
+
+    subTotal: number;
+
+    shipping: number;
+
+    totalBeforeTax: number;
+
+    currencyCode: CurrencyCode;
+
+    total: number;
+
+    lines: Lines[];
+
+    billingAddress: Maybe<BillingAddress>;
+  };
+
+  export type Lines = {
+    __typename?: "OrderLine";
+
+    unitPriceWithTax: number;
+
+    totalPrice: number;
+
+    quantity: number;
+
+    featuredAsset: Maybe<FeaturedAsset>;
+
+    productVariant: ProductVariant;
+  };
+
+  export type FeaturedAsset = {
+    __typename?: "Asset";
+
+    preview: string;
+  };
+
+  export type ProductVariant = {
+    __typename?: "ProductVariant";
+
+    id: string;
+
+    name: string;
+
+    sku: string;
+
+    options: Options[];
+  };
+
+  export type Options = {
+    __typename?: "ProductOption";
+
+    name: Maybe<string>;
+  };
+
+  export type BillingAddress = {
+    __typename?: "BillingAddress";
+
+    company: Maybe<string>;
+
+    fullName: Maybe<string>;
+
+    streetLine1: Maybe<string>;
+
+    city: Maybe<string>;
+
+    postalCode: Maybe<string>;
+
+    countryCode: Maybe<string>;
+
+    province: Maybe<string>;
+
+    phoneNumber: Maybe<string>;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
@@ -1735,6 +1853,40 @@ export namespace ProductWithVariants {
 
   export type _FacetValues = {
     __typename?: "FacetValue";
+
+    name: string;
+  };
+}
+
+export namespace PartialOrder {
+  export type Fragment = {
+    __typename?: "Order";
+
+    id: string;
+
+    active: boolean;
+
+    code: string;
+
+    lines: Lines[];
+  };
+
+  export type Lines = {
+    __typename?: "OrderLine";
+
+    productVariant: ProductVariant;
+
+    unitPriceWithTax: number;
+
+    quantity: number;
+  };
+
+  export type ProductVariant = {
+    __typename?: "ProductVariant";
+
+    id: string;
+
+    sku: string;
 
     name: string;
   };

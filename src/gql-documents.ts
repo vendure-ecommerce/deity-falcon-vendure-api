@@ -104,3 +104,77 @@ export const SEARCH_PRODUCTS = gql`
         }
     }
 `;
+
+export const PARTIAL_ORDER_FRAGMENT = gql`
+    fragment PartialOrder on Order {
+        id
+        active
+        code
+        lines {
+            productVariant {
+                id
+                sku
+                name
+            }
+            unitPriceWithTax
+            quantity
+        }
+    }
+`;
+
+export const ADD_TO_ORDER = gql`
+    mutation AddToOrder($id: ID!, $qty: Int!) {
+        addItemToOrder(productVariantId: $id, quantity: $qty) {
+            ...PartialOrder
+        }
+    }
+    ${PARTIAL_ORDER_FRAGMENT}
+`;
+
+export const ADJUST_ITEM_QTY = gql`
+    mutation AdjustItemQty($id: ID!, $qty: Int!) {
+        adjustItemQuantity(orderItemId: $id, quantity: $qty) {
+            ...PartialOrder
+        }
+    }
+    ${PARTIAL_ORDER_FRAGMENT}
+`;
+
+export const ACTIVE_ORDER = gql`
+    query GetActiveOrder {
+        activeOrder {
+            active
+            subTotal
+            shipping
+            totalBeforeTax
+            currencyCode
+            total
+            lines {
+                unitPriceWithTax
+                totalPrice
+                quantity
+                featuredAsset {
+                    preview
+                }
+                productVariant {
+                    id
+                    name
+                    sku
+                    options {
+                        name
+                    }
+                }
+            }
+            billingAddress {
+                company
+                fullName
+                streetLine1
+                city
+                postalCode
+                countryCode
+                province
+                phoneNumber
+            }
+        }
+    }
+`;

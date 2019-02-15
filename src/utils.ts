@@ -1,5 +1,5 @@
-import { Product } from './generated/falcon-types';
-import { ProductWithVariants, SearchProducts } from './generated/vendure-types';
+import { Cart, CartItemPayload, Product } from './generated/falcon-types';
+import { GetActiveOrder, PartialOrder, ProductWithVariants, SearchProducts } from './generated/vendure-types';
 
 /**
  * Translates a Vendure Product entity into a shape compatible with the Falcon Product
@@ -15,9 +15,9 @@ export function vendureProductToProduct(vendureProduct: ProductWithVariants.Frag
         urlPath: formatProductUrl(vendureProduct.id, vendureProduct.slug),
         thumbnail: featuredAsset ? featuredAsset.preview + '?w=300&h=300&mode=crop' : null,
         priceType: 'priceType',
-        price: formatPrice(vendureProduct.variants[0].price),
-        minPrice: formatPrice(vendureProduct.variants[0].price),
-        maxPrice: formatPrice(vendureProduct.variants[0].price),
+        price: formatPrice(vendureProduct.variants[0].price, 'string'),
+        minPrice: formatPrice(vendureProduct.variants[0].price, 'string'),
+        maxPrice: formatPrice(vendureProduct.variants[0].price, 'string'),
         currency: vendureProduct.variants[0].currencyCode,
         description,
         stock: {
@@ -64,9 +64,61 @@ export function searchResultToProduct(searchResult: SearchProducts.Items): Produ
         sku: searchResult.sku,
         id: searchResult.productId,
         name: searchResult.productName,
-        price: formatPrice(searchResult.price),
+        price: formatPrice(searchResult.price, 'string'),
         thumbnail: searchResult.productPreview + '?w=300&h=300&mode=crop',
         urlPath: formatProductUrl(searchResult.productId, searchResult.slug),
+    };
+}
+
+/**
+ * Convers a Vendure Order to the Falcon Cart type.
+ */
+export function orderToCart(order: GetActiveOrder.ActiveOrder): Cart {
+    return {
+        active: order.active,
+        virtual: false,
+        items: order.lines.map(line => {
+            return {
+                itemId: +line.productVariant.id,
+                sku: line.productVariant.sku,
+                qty: line.quantity,
+                name: line.productVariant.name,
+                price: formatPrice(line.unitPriceWithTax, 'number'),
+                rowTotalInclTax: (line.totalPrice),
+                thumbnailUrl: line.featuredAsset && line.featuredAsset.preview + '?preset=thumb',
+                itemOptions: line.productVariant.options.map(o => ({ value: o.name })),
+            };
+        }),
+        itemsQty: order.lines.reduce((qty, l) => qty + l.quantity, 0),
+        totals: [
+            {  code: 'subtotal', title: 'Subtotal', value: formatPrice(order.subTotal, 'number') },
+            {  code: 'shipping', title: 'Shipping & Handling', value: formatPrice(order.shipping, 'number') },
+            {  code: 'tax', title: 'Tax', value: formatPrice(order.total - order.totalBeforeTax, 'number') },
+            {  code: 'grand_total', title: 'Grand Total', value: formatPrice(order.total, 'number') },
+        ],
+        quoteCurrency: order.currencyCode,
+        couponCode: '',
+        billingAddress: null,
+    };
+}
+
+/**
+ * Adding & adjusting and order in Vendure returns the entire cart, whereas Falcon expects just the added /
+ * adjusted row.
+ */
+export function partialOrderToCartItem(order: PartialOrder.Fragment, variantId: string): CartItemPayload {
+    const { lines } = order;
+    const addedLine = lines.find(l => l.productVariant.id === variantId);
+    if (!addedLine) {
+        throw new Error(`Could not find the corresponding OrderLine for the variant id "${variantId}"`);
+    }
+    return {
+        name: addedLine.productVariant.name,
+        price: addedLine.unitPriceWithTax,
+        itemId: +addedLine.productVariant.id,
+        qty: addedLine.quantity,
+        sku: addedLine.productVariant.sku,
+        productType: '',
     };
 }
 
@@ -76,7 +128,12 @@ function formatProductUrl(id: string, slug: string): string {
 
 /**
  * Vendure stores all price as cent integers, whereas Falcon wants them as a string decimal.
+ * For some reason, the Falcon schema sometimes has prices as strings and sometimes as numbers,
+ * hence the "format" parameter.
  */
-function formatPrice(priceInCents: number): string {
-    return (priceInCents / 100).toString(10);
+function formatPrice(priceInCents: number, format: 'string'): string;
+function formatPrice(priceInCents: number, format: 'number'): number;
+function formatPrice(priceInCents: number, format: 'string' | 'number'): string | number {
+    const divided = priceInCents / 100;
+    return format === 'string' ? divided.toString(10) : divided;
 }

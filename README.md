@@ -4,7 +4,7 @@ This is an experimental api provider for [DEITY Falcon](https://github.com/deity
 
 ## Current Status
 
-Currently I have implemented basic product list & detail views. It is very experimental and most aspects are not yet working.
+Currently I have implemented basic product list & detail views and adding to cart (but not adjusting cart). It is very experimental and most aspects are not yet working.
 
 ## Development
 
