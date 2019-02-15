@@ -53,7 +53,7 @@ export class VendureApiBase extends ApiDataSource {
             const matches = path.match(/product\/(\d+)/);
             if (matches) {
                 result.id = matches[1];
-                result.type = 'shop-category';
+                result.type = 'shop-product';
             }
         }
         return result;
