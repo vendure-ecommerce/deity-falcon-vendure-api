@@ -315,10 +315,6 @@ export interface ProductSortParameter {
   name?: Maybe<SortOrder>;
 
   slug?: Maybe<SortOrder>;
-
-  description?: Maybe<SortOrder>;
-
-  image?: Maybe<SortOrder>;
 }
 
 export interface ProductFilterParameter {
@@ -405,6 +401,14 @@ export interface SearchInput {
   take?: Maybe<number>;
 
   skip?: Maybe<number>;
+
+  sort?: Maybe<SearchResultSortParameter>;
+}
+
+export interface SearchResultSortParameter {
+  name?: Maybe<SortOrder>;
+
+  price?: Maybe<SortOrder>;
 }
 
 export interface ShippingMethodListOptions {

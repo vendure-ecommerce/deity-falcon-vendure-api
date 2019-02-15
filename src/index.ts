@@ -6,7 +6,7 @@ import {
     GraphQLContext,
 } from '@deity/falcon-server-env';
 import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/src/models/ApiDataSource';
-import { ApiDataSourceConfig, ConfigurableConstructorParams } from '@deity/falcon-server-env/src/types';
+import { ConfigurableConstructorParams } from '@deity/falcon-server-env/src/types';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
@@ -15,20 +15,19 @@ import {
     Category,
     CategoryQueryArgs,
     Customer,
-    Product,
     ProductList,
     ProductQueryArgs,
     ProductsCategoryArgs,
-    ProductsQueryArgs,
+    SortOrderDirection,
 } from './generated/falcon-types';
 import {
     GetCategoriesList,
     GetProduct,
-    GetProductsList,
-    ProductWithVariants,
     SearchProducts,
+    SearchResultSortParameter,
+    SortOrder,
 } from './generated/vendure-types';
-import { GET_ALL_CATEGORIES, GET_PRODUCT, GET_PRODUCTS_LIST, PRODUCT_FRAGMENT, SEARCH_PRODUCTS } from './gql-documents';
+import { GET_ALL_CATEGORIES, GET_PRODUCT, SEARCH_PRODUCTS } from './gql-documents';
 import { searchResultToProduct, vendureProductToProduct } from './utils';
 
 export interface VendureApiConfig {
@@ -107,6 +106,8 @@ module.exports = class VendureApi extends ApiDataSource {
     }
 
     async categoryProducts(obj: Category, args: ProductsCategoryArgs): Promise<ProductList> {
+        const { pagination, filters, sort } = args;
+
         const allCategories = await this.getAllCategories();
         const matchingCategory = allCategories.find(c => c.id === obj.id);
         let facetValueIds: string[] = [];
@@ -115,10 +116,25 @@ module.exports = class VendureApi extends ApiDataSource {
                 .concat(matchingCategory.ancestorFacetValues.map(fv => fv.id));
         }
 
+        const currentPage = (pagination && pagination.page) || 1;
+        const perPage = (pagination && pagination.perPage) || 20;
+        const take = perPage;
+        const skip = (currentPage - 1) * perPage;
+        const vendureSort: SearchResultSortParameter = {};
+        if (sort && sort.field === 'name') {
+            vendureSort.name = sort.direction === SortOrderDirection.asc ? SortOrder.ASC : SortOrder.DESC;
+        }
+        if (sort && sort.field === 'price') {
+            vendureSort.price = sort.direction === SortOrderDirection.asc ? SortOrder.ASC : SortOrder.DESC;
+        }
+
         const response = await this.query<SearchProducts.Query, SearchProducts.Variables>(SEARCH_PRODUCTS, {
             input: {
                 groupByProduct: true,
                 facetIds: facetValueIds,
+                take,
+                skip,
+                sort: vendureSort,
             },
         });
 
@@ -127,10 +143,10 @@ module.exports = class VendureApi extends ApiDataSource {
             aggregations: [],
             pagination: {
                 totalItems: response.search.totalItems,
-                currentPage: 1,
+                currentPage,
                 nextPage: 2,
-                perPage: 20,
-                totalPages: 25,
+                perPage,
+                totalPages: response.search.totalItems,
             },
         };
 
@@ -164,6 +180,9 @@ module.exports = class VendureApi extends ApiDataSource {
         };
     }
 
+    /**
+     * Retrieve all available ProductCategories from the Vendure server and cache them.
+     */
     private getAllCategories(): Promise<GetCategoriesList.Items[]> {
         if (this.allCategories) {
             return this.allCategories;
@@ -188,6 +207,7 @@ module.exports = class VendureApi extends ApiDataSource {
             variables,
         });
         if (response.errors) {
+            // tslint:disable-next-line:no-console
             console.log(JSON.stringify(response.errors[0], null, 2));
             throw new Error(response.errors[0].message);
         }
