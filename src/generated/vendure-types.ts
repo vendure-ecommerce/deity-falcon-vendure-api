@@ -515,6 +515,8 @@ export interface RegisterCustomerInput {
   firstName?: Maybe<string>;
 
   lastName?: Maybe<string>;
+
+  password?: Maybe<string>;
 }
 
 export interface CreateChannelInput {

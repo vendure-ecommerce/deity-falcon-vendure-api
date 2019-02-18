@@ -20,6 +20,7 @@ import {
     ShippingInformation,
     ShippingMethod,
     SignInMutationArgs,
+    SignUpMutationArgs,
     SortOrderDirection,
     UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
@@ -27,6 +28,7 @@ import {
     AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
+    CreateAccount,
     GetActiveOrder,
     GetCategoriesList,
     GetCountryList,
@@ -50,6 +52,7 @@ import {
     ADD_PAYMENT_TO_ORDER,
     ADD_TO_ORDER,
     ADJUST_ITEM_QTY,
+    CREATE_ACCOUNT,
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
@@ -356,16 +359,21 @@ module.exports = class VendureApi extends VendureApiBase {
         return logout;
     }
 
-    /*signUp(obj: any, args: SignUpMutationArgs): Promise<boolean> {
+    async signUp(obj: any, args: SignUpMutationArgs): Promise<boolean> {
         const { input } = args;
-        const {} = this.query<CreateAccount.Mutation, CreateAccount.Variables>(CREATE_ACCOUNT, {
+        if (!input.email || !input.password) {
+            throw new Error(`An email address and password must be provided`);
+        }
+        const { registerCustomerAccount } = await this.query<CreateAccount.Mutation, CreateAccount.Variables>(CREATE_ACCOUNT, {
             input: {
                 firstName: input.firstname,
                 lastName: input.lastname,
                 emailAddress: input.email,
-            }
-        })
-    }*/
+                password: input.password,
+            },
+        });
+        return registerCustomerAccount;
+    }
 
     /**
      * Transitions the state of the Vendure order to the given state.
