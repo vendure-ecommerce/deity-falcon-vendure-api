@@ -8,7 +8,7 @@ import {
     CategoryQueryArgs,
     CountryList,
     Customer,
-    Order,
+    Order, Orders, OrdersQueryArgs,
     PlaceOrderMutationArgs,
     PlaceOrderResult,
     ProductList,
@@ -28,11 +28,11 @@ import {
     AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
-    CreateAccount,
+    CreateAccount, FullOrder,
     GetActiveOrder,
     GetCategoriesList,
     GetCountryList,
-    GetCustomer,
+    GetCustomer, GetCustomerOrders,
     GetNextStates,
     GetOrderByCode,
     GetProduct,
@@ -57,7 +57,7 @@ import {
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
     GET_ORDER_BY_CODE,
-    GET_ORDER_NEXT_STATES,
+    GET_ORDER_NEXT_STATES, GET_ORDERS,
     GET_PRODUCT,
     GET_SHIPPING_METHODS,
     LOG_IN,
@@ -160,9 +160,9 @@ module.exports = class VendureApi extends VendureApiBase {
             pagination: {
                 totalItems: response.search.totalItems,
                 currentPage,
-                nextPage: 2,
+                nextPage: currentPage + 1,
                 perPage,
-                totalPages: response.search.totalItems,
+                totalPages: Math.floor(response.search.totalItems / perPage),
             },
         };
 
@@ -378,6 +378,34 @@ module.exports = class VendureApi extends VendureApiBase {
         return registerCustomerAccount;
     }
 
+    async orders(obj: any, args: OrdersQueryArgs): Promise<Orders> {
+        const { pagination } = args;
+        const currentPage = (pagination && pagination.page) || 1;
+        const perPage = (pagination && pagination.perPage) || 20;
+        const take = perPage;
+        const skip = (currentPage - 1) * perPage;
+        const { activeCustomer } = await this.query<GetCustomerOrders.Query, GetCustomerOrders.Variables>(GET_ORDERS, {
+            options: {
+                take,
+                skip,
+            },
+        });
+        if (!(activeCustomer && activeCustomer.orders)) {
+            throw new Error(`Could not get the orders for the active Customer`);
+        }
+        const items = activeCustomer.orders.items.map(o => vendureOrderToFalcon(o));
+        return {
+            items,
+            pagination: {
+                currentPage,
+                nextPage: currentPage + 1,
+                totalItems: activeCustomer.orders.totalItems,
+                perPage,
+                totalPages: Math.floor(activeCustomer.orders.totalItems / perPage),
+            },
+        };
+    }
+
     /**
      * Transitions the state of the Vendure order to the given state.
      */
@@ -410,7 +438,7 @@ module.exports = class VendureApi extends VendureApiBase {
      * Given an itemId (aka a Vendure ProductVariant id as represented in Falcon), returns the OrderLine
      * containing that variant.
      */
-    private getOrderLineFor(itemId: number): GetActiveOrder.Lines {
+    private getOrderLineFor(itemId: number): FullOrder.Lines {
         const session: SessionData = this.session;
         if (!session.order) {
             throw new Error(`No order found in session`);

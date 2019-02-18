@@ -149,44 +149,77 @@ export const REMOVE_ITEM = gql`
     ${PARTIAL_ORDER_FRAGMENT}
 `;
 
+export const ORDER_ADDRESS_FRAGMENT = gql`
+    fragment OrderAddress on OrderAddress {
+        company
+        fullName
+        streetLine1
+        streetLine2
+        city
+        postalCode
+        countryCode
+        province
+        phoneNumber
+    }
+`;
+
+export const FULL_ORDER_FRAGMENT = gql`
+    fragment FullOrder on Order {
+        createdAt
+        id
+        code
+        state
+        active
+        subTotal
+        shipping
+        totalBeforeTax
+        currencyCode
+        total
+        payments {
+            id
+            method
+            amount
+            transactionId
+        }
+        lines {
+            id
+            unitPriceWithTax
+            totalPrice
+            quantity
+            featuredAsset {
+                preview
+            }
+            productVariant {
+                id
+                name
+                sku
+                options {
+                    name
+                }
+            }
+        }
+        billingAddress {
+            ...OrderAddress
+        }
+        shippingAddress {
+            ...OrderAddress
+        }
+        customer {
+            id
+            firstName
+            lastName
+        }
+    }
+    ${ORDER_ADDRESS_FRAGMENT}
+`;
+
 export const ACTIVE_ORDER = gql`
     query GetActiveOrder {
         activeOrder {
-            active
-            subTotal
-            shipping
-            totalBeforeTax
-            currencyCode
-            total
-            lines {
-                id
-                unitPriceWithTax
-                totalPrice
-                quantity
-                featuredAsset {
-                    preview
-                }
-                productVariant {
-                    id
-                    name
-                    sku
-                    options {
-                        name
-                    }
-                }
-            }
-            billingAddress {
-                company
-                fullName
-                streetLine1
-                city
-                postalCode
-                countryCode
-                province
-                phoneNumber
-            }
+            ...FullOrder
         }
     }
+    ${FULL_ORDER_FRAGMENT}
 `;
 
 export const GET_CUSTOMER = gql`
@@ -288,62 +321,13 @@ export const SET_CUSTOMER_FOR_ORDER = gql`
     }
 `;
 
-export const ORDER_ADDRESS_FRAGMENT = gql`
-    fragment OrderAddress on OrderAddress {
-        company
-        fullName
-        streetLine1
-        streetLine2
-        city
-        postalCode
-        countryCode
-        province
-        phoneNumber
-    }
-`;
-
 export const GET_ORDER_BY_CODE = gql`
     query GetOrderByCode($code: String!) {
         orderByCode(code: $code) {
-            id
-            code
-            subTotal
-            shipping
-            totalBeforeTax
-            currencyCode
-            total
-            payments {
-                id
-                method
-                amount
-                transactionId
-            }
-            lines {
-                id
-                unitPriceWithTax
-                totalPrice
-                quantity
-                featuredAsset {
-                    preview
-                }
-                productVariant {
-                    id
-                    name
-                    sku
-                    options {
-                        name
-                    }
-                }
-            }
-            billingAddress {
-                ...OrderAddress
-            }
-            shippingAddress {
-                ...OrderAddress
-            }
+            ...FullOrder
         }
     }
-    ${ORDER_ADDRESS_FRAGMENT}
+    ${FULL_ORDER_FRAGMENT}
 `;
 
 export const CREATE_ACCOUNT = gql`
@@ -367,4 +351,18 @@ export const LOG_OUT = gql`
     mutation LogOut {
         logout
     }
+`;
+
+export const GET_ORDERS = gql`
+    query GetCustomerOrders($options: OrderListOptions) {
+        activeCustomer {
+            orders(options: $options) {
+                items {
+                    ...FullOrder
+                }
+                totalItems
+            }
+        }
+    }
+    ${FULL_ORDER_FRAGMENT}
 `;

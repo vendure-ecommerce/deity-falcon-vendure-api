@@ -9,7 +9,7 @@ import {
     Product, ShippingMethod,
 } from './generated/falcon-types';
 import {
-    CreateAddressInput,
+    CreateAddressInput, FullOrder,
     GetActiveOrder, GetCustomer, GetOrderByCode,
     GetShippingMethods, OrderAddress,
     PartialOrder,
@@ -198,10 +198,14 @@ export function activeCustomerToCustomer(activeCustomer: GetCustomer.ActiveCusto
 /**
  * Coverts a Vendure Order entity to the Falcon format.
  */
-export function vendureOrderToFalcon(order: GetOrderByCode.OrderByCode): Order {
+export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
     const paymentMethodName = order.payments ? order.payments[0].method : null;
     return {
         incrementId: order.id,
+        entityId: +order.id,
+        customerFirstname: order.customer && order.customer.firstName,
+        customerLastname: order.customer && order.customer.lastName,
+        status: order.state,
         items: order.lines.map(line => {
             return {
                 itemId: +line.productVariant.id,
