@@ -189,6 +189,34 @@ export const ACTIVE_ORDER = gql`
     }
 `;
 
+export const GET_CUSTOMER = gql`
+    query GetCustomer {
+        activeCustomer {
+            id
+            firstName
+            lastName
+            emailAddress
+            addresses {
+                id
+                fullName
+                streetLine1
+                streetLine2
+                city
+                province
+                postalCode
+                phoneNumber
+                country {
+                    id
+                    code
+                    name
+                }
+                defaultBillingAddress
+                defaultShippingAddress
+            }
+        }
+    }
+`;
+
 export const GET_COUNTRY_LIST = gql`
     query GetCountryList {
         availableCountries {
@@ -209,6 +237,22 @@ export const GET_SHIPPING_METHODS = gql`
     }
 `;
 
+export const GET_ORDER_NEXT_STATES = gql`
+    query GetNextStates {
+        nextOrderStates
+    }
+`;
+
+export const TRANSITION_ORDER_STATE = gql`
+    mutation TransitionOrderToState($state: String!) {
+        transitionOrderToState(state: $state) {
+            id
+            code
+            state
+        }
+    }
+`;
+
 export const SET_SHIPPING_METHOD = gql`
     mutation SetShippingMethod($addressInput: CreateAddressInput!, $shippingMethodId: ID!) {
         setOrderShippingAddress(input: $addressInput) {
@@ -224,4 +268,80 @@ export const SET_SHIPPING_METHOD = gql`
         }
     }
     ${PARTIAL_ORDER_FRAGMENT}
+`;
+
+export const ADD_PAYMENT_TO_ORDER = gql`
+    mutation AddPaymentToOrder($input: PaymentInput!) {
+        addPaymentToOrder(input: $input) {
+            id
+            state
+            code
+        }
+    }
+`;
+
+export const SET_CUSTOMER_FOR_ORDER = gql`
+    mutation SetCustomerForOrder($input: CreateCustomerInput!) {
+        setCustomerForOrder(input: $input) {
+            id
+        }
+    }
+`;
+
+export const ORDER_ADDRESS_FRAGMENT = gql`
+    fragment OrderAddress on OrderAddress {
+        company
+        fullName
+        streetLine1
+        streetLine2
+        city
+        postalCode
+        countryCode
+        province
+        phoneNumber
+    }
+`;
+
+export const GET_ORDER_BY_CODE = gql`
+    query GetOrderByCode($code: String!) {
+        orderByCode(code: $code) {
+            id
+            code
+            subTotal
+            shipping
+            totalBeforeTax
+            currencyCode
+            total
+            payments {
+                id
+                method
+                amount
+                transactionId
+            }
+            lines {
+                id
+                unitPriceWithTax
+                totalPrice
+                quantity
+                featuredAsset {
+                    preview
+                }
+                productVariant {
+                    id
+                    name
+                    sku
+                    options {
+                        name
+                    }
+                }
+            }
+            billingAddress {
+                ...OrderAddress
+            }
+            shippingAddress {
+                ...OrderAddress
+            }
+        }
+    }
+    ${ORDER_ADDRESS_FRAGMENT}
 `;

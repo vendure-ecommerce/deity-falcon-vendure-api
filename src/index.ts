@@ -8,6 +8,9 @@ import {
     CategoryQueryArgs,
     CountryList,
     Customer,
+    Order,
+    PlaceOrderMutationArgs,
+    PlaceOrderResult,
     ProductList,
     ProductQueryArgs,
     ProductsCategoryArgs,
@@ -20,38 +23,52 @@ import {
     UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
 import {
+    AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
     GetActiveOrder,
     GetCategoriesList,
     GetCountryList,
+    GetCustomer,
+    GetNextStates,
+    GetOrderByCode,
     GetProduct,
     GetShippingMethods,
     RemoveItem,
     SearchProducts,
     SearchResultSortParameter,
+    SetCustomerForOrder,
     SetShippingMethod,
     SortOrder,
+    TransitionOrderToState,
 } from './generated/vendure-types';
 import {
     ACTIVE_ORDER,
+    ADD_PAYMENT_TO_ORDER,
     ADD_TO_ORDER,
     ADJUST_ITEM_QTY,
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
+    GET_CUSTOMER,
+    GET_ORDER_BY_CODE,
+    GET_ORDER_NEXT_STATES,
     GET_PRODUCT,
     GET_SHIPPING_METHODS,
     REMOVE_ITEM,
     SEARCH_PRODUCTS,
+    SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
+    TRANSITION_ORDER_STATE,
 } from './gql-documents';
 import {
+    activeCustomerToCustomer,
     falconAddressInputToVendure,
     orderToCart,
     orderToTotals,
     partialOrderToCartItem,
     searchResultToProduct,
     shippingQuoteToShippingMethod,
+    vendureOrderToFalcon,
     vendureProductToProduct,
 } from './utils';
 import { SessionData, VendureApiBase, VendureApiParams } from './vendure-api-base';
@@ -154,8 +171,13 @@ module.exports = class VendureApi extends VendureApiBase {
         }
     }
 
-    async customer(): Promise<Customer> {
-        return null as any;
+    async customer(): Promise<Customer | null> {
+        const { activeCustomer } = await this.query<GetCustomer.Query>(GET_CUSTOMER);
+        if (!activeCustomer) {
+            return null;
+        }
+        (this.session as SessionData).customer = activeCustomer;
+        return activeCustomerToCustomer(activeCustomer);
     }
 
     async addToCart(obj: any, args: AddToCartMutationArgs): Promise<CartItemPayload> {
@@ -232,6 +254,7 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async setShipping(obj: any, args: SetShippingMutationArgs): Promise<ShippingInformation> {
         const { input } = args;
+        const session: SessionData = this.session;
         if (!input) {
             throw new Error(`No input received for setShipping resolver`);
         }
@@ -239,6 +262,7 @@ module.exports = class VendureApi extends VendureApiBase {
         if (!address) {
             throw new Error(`No shippingAddress was specified`);
         }
+        session.addressInput = address;
         const result = await this.query<SetShippingMethod.Mutation, SetShippingMethod.Variables>(SET_SHIPPING_METHOD, {
             addressInput: falconAddressInputToVendure(address),
             shippingMethodId: input.shippingMethodCode || '',
@@ -254,6 +278,76 @@ module.exports = class VendureApi extends VendureApiBase {
             ],
             totals: orderToTotals(setOrderShippingMethod),
         };
+    }
+
+    async placeOrder(obj: any, args: PlaceOrderMutationArgs): Promise<PlaceOrderResult> {
+        const { input } = args;
+        const session: SessionData = this.session;
+        const paymentMethod = input.paymentMethod;
+        if (!paymentMethod) {
+            throw new Error(`No paymentMethod was specified`);
+        }
+        if (!session.customer) {
+            const { billingAddress, email } = input;
+            const { addressInput } = session;
+            const address = billingAddress || addressInput;
+            if (!address) {
+                throw new Error(`No address information was specified`);
+            }
+            if (!email) {
+                throw new Error(`No email address was specified`);
+            }
+            await this.query<SetCustomerForOrder.Mutation, SetCustomerForOrder.Variables>(SET_CUSTOMER_FOR_ORDER, {
+                input: {
+                    firstName: address.firstname || '',
+                    lastName: address.lastname || '',
+                    emailAddress: email,
+                    phoneNumber: address.telephone,
+                },
+            });
+        }
+        await this.transitionOrderToState('ArrangingPayment');
+        const { addPaymentToOrder } = await this.query<AddPaymentToOrder.Mutation, AddPaymentToOrder.Variables>(ADD_PAYMENT_TO_ORDER, {
+            input: {
+                method: 'example-payment-provider',
+                metadata: {},
+            },
+        });
+        if (!addPaymentToOrder) {
+            throw new Error(`Could not add payment to order`);
+        }
+        session.lastOrderCode = addPaymentToOrder.code;
+        return {
+            orderId: +addPaymentToOrder.id,
+            orderRealId: addPaymentToOrder.code,
+        };
+    }
+
+    async lastOrder(): Promise<Order> {
+        const { lastOrderCode } = this.session as SessionData;
+        if (!lastOrderCode) {
+            throw new Error(`Last order code is not defined`);
+        }
+        const { orderByCode } = await this.query<GetOrderByCode.Query, GetOrderByCode.Variables>(GET_ORDER_BY_CODE, {
+            code: lastOrderCode,
+        });
+        if (!orderByCode) {
+            throw new Error(`Could not find last order`);
+        }
+        return vendureOrderToFalcon(orderByCode);
+    }
+
+    /**
+     * Transitions the state of the Vendure order to the given state.
+     */
+    private async transitionOrderToState(state: string): Promise<TransitionOrderToState.Mutation> {
+        const nextStates = (await this.query<GetNextStates.Query>(GET_ORDER_NEXT_STATES)).nextOrderStates;
+        if (!nextStates.includes(state)) {
+            throw new Error(`Order cannot be transitioned to the state "${state}"`);
+        }
+        return this.query<TransitionOrderToState.Mutation, TransitionOrderToState.Variables>(TRANSITION_ORDER_STATE, {
+            state,
+        });
     }
 
     /**

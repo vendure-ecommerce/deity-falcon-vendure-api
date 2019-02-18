@@ -12,7 +12,8 @@ import { ConfigurableConstructorParams } from '@deity/falcon-server-env/src/type
 import { Request } from 'apollo-server-env';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
 
-import { GetActiveOrder } from './generated/vendure-types';
+import { AddressInput } from './generated/falcon-types';
+import { GetActiveOrder, GetCustomer } from './generated/vendure-types';
 
 export interface VendureApiConfig {
     host: string;
@@ -27,6 +28,9 @@ export interface SessionData {
     cookieSession: string;
     cookieSessionSig: string;
     order?: GetActiveOrder.ActiveOrder;
+    customer?: GetCustomer.ActiveCustomer;
+    addressInput?: AddressInput;
+    lastOrderCode?: string;
 }
 
 /**

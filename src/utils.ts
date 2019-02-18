@@ -1,8 +1,17 @@
-import { AddressInput, Cart, CartItemPayload, CartTotal, Product, ShippingMethod } from './generated/falcon-types';
+import {
+    Address,
+    AddressInput,
+    Cart,
+    CartItemPayload,
+    CartTotal,
+    Customer,
+    Order,
+    Product, ShippingMethod,
+} from './generated/falcon-types';
 import {
     CreateAddressInput,
-    GetActiveOrder,
-    GetShippingMethods,
+    GetActiveOrder, GetCustomer, GetOrderByCode,
+    GetShippingMethods, OrderAddress,
     PartialOrder,
     ProductWithVariants,
     SearchProducts,
@@ -168,6 +177,78 @@ export function falconAddressInputToVendure(input: AddressInput): CreateAddressI
         countryCode: input.countryId || '',
         postalCode: input.postcode,
         phoneNumber: input.telephone,
+    };
+}
+
+/**
+ * Converts an Vendure Customer to the Falcon format.
+ */
+export function activeCustomerToCustomer(activeCustomer: GetCustomer.ActiveCustomer): Customer {
+    return {
+        id: +activeCustomer.id,
+        addresses: activeCustomer.addresses && activeCustomer.addresses.map(a => vendureAddressToFalcon(a)),
+        defaultBilling: 'defaultBilling',
+        defaultShipping: 'defaultShipping',
+        email: activeCustomer.emailAddress,
+        firstname: activeCustomer.firstName,
+        lastname: activeCustomer.lastName,
+    };
+}
+
+/**
+ * Coverts a Vendure Order entity to the Falcon format.
+ */
+export function vendureOrderToFalcon(order: GetOrderByCode.OrderByCode): Order {
+    const paymentMethodName = order.payments ? order.payments[0].method : null;
+    return {
+        incrementId: order.id,
+        items: order.lines.map(line => {
+            return {
+                itemId: +line.productVariant.id,
+                sku: line.productVariant.sku,
+                qty: line.quantity,
+                name: line.productVariant.name,
+                price: formatPrice(line.unitPriceWithTax, 'number'),
+                rowTotalInclTax: formatPrice(line.totalPrice, 'number'),
+                thumbnailUrl: line.featuredAsset && line.featuredAsset.preview + '?preset=thumb',
+                itemOptions: line.productVariant.options.map(o => ({ value: o.name })),
+            };
+        }),
+        couponCode: '',
+        subtotal: formatPrice(order.subTotal, 'string'),
+        shippingAmount: formatPrice(order.shipping, 'string'),
+        taxAmount: formatPrice(order.total - order.totalBeforeTax, 'string'),
+        grandTotal: formatPrice(order.total, 'string'),
+        shippingAddress: order.shippingAddress ? vendureAddressToFalcon(order.shippingAddress) : null,
+        billingAddress: order.billingAddress ? vendureAddressToFalcon(order.billingAddress) : null,
+        paymentMethodName,
+    };
+}
+
+/**
+ * Coverts an Address from Vendure into the Falcon format.
+ */
+function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCustomer.Addresses): Address {
+    function isOrderAddress(a: OrderAddress.Fragment | GetCustomer.Addresses): a is OrderAddress.Fragment {
+        return !a.hasOwnProperty('id');
+    }
+
+    const fullName = address.fullName || '';
+    const id = isOrderAddress(address) ? 0 : +address.id;
+    const countryId = (isOrderAddress(address) ? address.countryCode : address.country.code) || '';
+
+    return {
+        id,
+        firstname: fullName.split(' ')[0],
+        lastname: fullName.split(' ')[1],
+        street: [address.streetLine1, address.streetLine2],
+        city: address.city || '',
+        postcode: address.postalCode || '',
+        countryId,
+        region: address.province,
+        telephone: address.phoneNumber,
+        defaultBilling: isOrderAddress(address) ? false : address.defaultBillingAddress || false,
+        defaultShipping: isOrderAddress(address) ? false : address.defaultShippingAddress || false,
     };
 }
 

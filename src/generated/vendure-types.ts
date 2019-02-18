@@ -1768,7 +1768,7 @@ export namespace GetActiveOrder {
   };
 
   export type BillingAddress = {
-    __typename?: "BillingAddress";
+    __typename?: "OrderAddress";
 
     company: Maybe<string>;
 
@@ -1785,6 +1785,66 @@ export namespace GetActiveOrder {
     province: Maybe<string>;
 
     phoneNumber: Maybe<string>;
+  };
+}
+
+export namespace GetCustomer {
+  export type Variables = {};
+
+  export type Query = {
+    __typename?: "Query";
+
+    activeCustomer: Maybe<ActiveCustomer>;
+  };
+
+  export type ActiveCustomer = {
+    __typename?: "Customer";
+
+    id: string;
+
+    firstName: string;
+
+    lastName: string;
+
+    emailAddress: string;
+
+    addresses: Maybe<Addresses[]>;
+  };
+
+  export type Addresses = {
+    __typename?: "Address";
+
+    id: string;
+
+    fullName: Maybe<string>;
+
+    streetLine1: string;
+
+    streetLine2: Maybe<string>;
+
+    city: Maybe<string>;
+
+    province: Maybe<string>;
+
+    postalCode: Maybe<string>;
+
+    phoneNumber: Maybe<string>;
+
+    country: Country;
+
+    defaultBillingAddress: Maybe<boolean>;
+
+    defaultShippingAddress: Maybe<boolean>;
+  };
+
+  export type Country = {
+    __typename?: "Country";
+
+    id: string;
+
+    code: string;
+
+    name: string;
   };
 }
 
@@ -1828,6 +1888,38 @@ export namespace GetShippingMethods {
   };
 }
 
+export namespace GetNextStates {
+  export type Variables = {};
+
+  export type Query = {
+    __typename?: "Query";
+
+    nextOrderStates: string[];
+  };
+}
+
+export namespace TransitionOrderToState {
+  export type Variables = {
+    state: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    transitionOrderToState: Maybe<TransitionOrderToState>;
+  };
+
+  export type TransitionOrderToState = {
+    __typename?: "Order";
+
+    id: string;
+
+    code: string;
+
+    state: string;
+  };
+}
+
 export namespace SetShippingMethod {
   export type Variables = {
     addressInput: CreateAddressInput;
@@ -1861,6 +1953,140 @@ export namespace SetShippingMethod {
 
     total: number;
   } & PartialOrder.Fragment;
+}
+
+export namespace AddPaymentToOrder {
+  export type Variables = {
+    input: PaymentInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    addPaymentToOrder: Maybe<AddPaymentToOrder>;
+  };
+
+  export type AddPaymentToOrder = {
+    __typename?: "Order";
+
+    id: string;
+
+    state: string;
+
+    code: string;
+  };
+}
+
+export namespace SetCustomerForOrder {
+  export type Variables = {
+    input: CreateCustomerInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    setCustomerForOrder: Maybe<SetCustomerForOrder>;
+  };
+
+  export type SetCustomerForOrder = {
+    __typename?: "Order";
+
+    id: string;
+  };
+}
+
+export namespace GetOrderByCode {
+  export type Variables = {
+    code: string;
+  };
+
+  export type Query = {
+    __typename?: "Query";
+
+    orderByCode: Maybe<OrderByCode>;
+  };
+
+  export type OrderByCode = {
+    __typename?: "Order";
+
+    id: string;
+
+    code: string;
+
+    subTotal: number;
+
+    shipping: number;
+
+    totalBeforeTax: number;
+
+    currencyCode: CurrencyCode;
+
+    total: number;
+
+    payments: Maybe<Payments[]>;
+
+    lines: Lines[];
+
+    billingAddress: Maybe<BillingAddress>;
+
+    shippingAddress: Maybe<ShippingAddress>;
+  };
+
+  export type Payments = {
+    __typename?: "Payment";
+
+    id: string;
+
+    method: string;
+
+    amount: number;
+
+    transactionId: Maybe<string>;
+  };
+
+  export type Lines = {
+    __typename?: "OrderLine";
+
+    id: string;
+
+    unitPriceWithTax: number;
+
+    totalPrice: number;
+
+    quantity: number;
+
+    featuredAsset: Maybe<FeaturedAsset>;
+
+    productVariant: ProductVariant;
+  };
+
+  export type FeaturedAsset = {
+    __typename?: "Asset";
+
+    preview: string;
+  };
+
+  export type ProductVariant = {
+    __typename?: "ProductVariant";
+
+    id: string;
+
+    name: string;
+
+    sku: string;
+
+    options: Options[];
+  };
+
+  export type Options = {
+    __typename?: "ProductOption";
+
+    name: Maybe<string>;
+  };
+
+  export type BillingAddress = OrderAddress.Fragment;
+
+  export type ShippingAddress = OrderAddress.Fragment;
 }
 
 export namespace ProductWithVariants {
@@ -1980,5 +2206,29 @@ export namespace PartialOrder {
     sku: string;
 
     name: string;
+  };
+}
+
+export namespace OrderAddress {
+  export type Fragment = {
+    __typename?: "OrderAddress";
+
+    company: Maybe<string>;
+
+    fullName: Maybe<string>;
+
+    streetLine1: Maybe<string>;
+
+    streetLine2: Maybe<string>;
+
+    city: Maybe<string>;
+
+    postalCode: Maybe<string>;
+
+    countryCode: Maybe<string>;
+
+    province: Maybe<string>;
+
+    phoneNumber: Maybe<string>;
   };
 }
