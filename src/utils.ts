@@ -84,7 +84,7 @@ export function orderToCart(order: GetActiveOrder.ActiveOrder): Cart {
                 qty: line.quantity,
                 name: line.productVariant.name,
                 price: formatPrice(line.unitPriceWithTax, 'number'),
-                rowTotalInclTax: (line.totalPrice),
+                rowTotalInclTax: formatPrice(line.totalPrice, 'number'),
                 thumbnailUrl: line.featuredAsset && line.featuredAsset.preview + '?preset=thumb',
                 itemOptions: line.productVariant.options.map(o => ({ value: o.name })),
             };

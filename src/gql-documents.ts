@@ -188,3 +188,13 @@ export const ACTIVE_ORDER = gql`
         }
     }
 `;
+
+export const GET_COUNTRY_LIST = gql`
+    query GetCountryList {
+        availableCountries {
+            id
+            name
+            code
+        }
+    }
+`;

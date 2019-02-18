@@ -1788,6 +1788,26 @@ export namespace GetActiveOrder {
   };
 }
 
+export namespace GetCountryList {
+  export type Variables = {};
+
+  export type Query = {
+    __typename?: "Query";
+
+    availableCountries: AvailableCountries[];
+  };
+
+  export type AvailableCountries = {
+    __typename?: "Country";
+
+    id: string;
+
+    name: string;
+
+    code: string;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";

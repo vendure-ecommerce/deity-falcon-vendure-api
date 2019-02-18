@@ -70,7 +70,7 @@ export class VendureApiBase extends ApiDataSource {
     /**
      * Make a GraphQL query via POST to the Vendure API.
      */
-    protected async query<T, V extends { [key: string]: any; }>(query: DocumentNode, variables?: V): Promise<T> {
+    protected async query<T, V extends { [key: string]: any; } = any>(query: DocumentNode, variables?: V): Promise<T> {
         const apiPath = this.params.config && this.params.config.apiPath;
         if (!apiPath) {
             throw new Error(`No apiPath defined in the Falcon config`);

@@ -6,6 +6,7 @@ import {
     CartItemPayload,
     Category,
     CategoryQueryArgs,
+    CountryList,
     Customer,
     ProductList,
     ProductQueryArgs,
@@ -20,6 +21,7 @@ import {
     AdjustItemQty,
     GetActiveOrder,
     GetCategoriesList,
+    GetCountryList,
     GetProduct,
     RemoveItem,
     SearchProducts,
@@ -31,6 +33,7 @@ import {
     ADD_TO_ORDER,
     ADJUST_ITEM_QTY,
     GET_ALL_CATEGORIES,
+    GET_COUNTRY_LIST,
     GET_PRODUCT,
     REMOVE_ITEM,
     SEARCH_PRODUCTS,
@@ -193,6 +196,18 @@ module.exports = class VendureApi extends VendureApiBase {
         }
         this.session.order = order;
         return orderToCart(order);
+    }
+
+    async countries(): Promise<CountryList> {
+        const result = await this.query<GetCountryList.Query>(GET_COUNTRY_LIST);
+        return {
+            items: result.availableCountries.map(c => ({
+                englishName: c.name,
+                localName: c.name,
+                code: c.code,
+                regions: [],
+            })),
+        };
     }
 
     /**
