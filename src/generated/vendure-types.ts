@@ -1684,6 +1684,20 @@ export namespace AdjustItemQty {
   export type AdjustItemQuantity = PartialOrder.Fragment;
 }
 
+export namespace RemoveItem {
+  export type Variables = {
+    id: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    removeItemFromOrder: Maybe<RemoveItemFromOrder>;
+  };
+
+  export type RemoveItemFromOrder = PartialOrder.Fragment;
+}
+
 export namespace GetActiveOrder {
   export type Variables = {};
 

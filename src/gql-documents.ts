@@ -140,6 +140,15 @@ export const ADJUST_ITEM_QTY = gql`
     ${PARTIAL_ORDER_FRAGMENT}
 `;
 
+export const REMOVE_ITEM = gql`
+    mutation RemoveItem($id: ID!) {
+        removeItemFromOrder(orderItemId: $id) {
+            ...PartialOrder
+        }
+    }
+    ${PARTIAL_ORDER_FRAGMENT}
+`;
+
 export const ACTIVE_ORDER = gql`
     query GetActiveOrder {
         activeOrder {

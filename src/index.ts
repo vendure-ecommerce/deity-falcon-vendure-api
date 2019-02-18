@@ -1,5 +1,3 @@
-import { ApiUrlPriority, FetchUrlParams, FetchUrlResult, GraphQLContext } from '@deity/falcon-server-env';
-import { GraphQLResolveInfo } from 'graphql';
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
@@ -12,13 +10,18 @@ import {
     ProductList,
     ProductQueryArgs,
     ProductsCategoryArgs,
-    SortOrderDirection, UpdateCartItemMutationArgs,
+    RemoveCartItemMutationArgs,
+    RemoveCartItemResponse,
+    SortOrderDirection,
+    UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
 import {
-    AddToOrder, AdjustItemQty,
+    AddToOrder,
+    AdjustItemQty,
     GetActiveOrder,
     GetCategoriesList,
     GetProduct,
+    RemoveItem,
     SearchProducts,
     SearchResultSortParameter,
     SortOrder,
@@ -29,6 +32,7 @@ import {
     ADJUST_ITEM_QTY,
     GET_ALL_CATEGORIES,
     GET_PRODUCT,
+    REMOVE_ITEM,
     SEARCH_PRODUCTS,
 } from './gql-documents';
 import { orderToCart, partialOrderToCartItem, searchResultToProduct, vendureProductToProduct } from './utils';
@@ -155,13 +159,7 @@ module.exports = class VendureApi extends VendureApiBase {
     async updateCartItem(obj: any, args: UpdateCartItemMutationArgs): Promise<CartItemPayload> {
         const { input } = args;
         const session: SessionData = this.session;
-        if (!session.order) {
-            throw new Error(`No order found in session`);
-        }
-        const line = session.order.lines.find(l => l.productVariant.id === input.itemId.toString());
-        if (!line) {
-            throw new Error(`No OrderLine found containing the productId "${input.itemId}"`);
-        }
+        const line = this.getOrderLineFor(input.itemId);
         const result = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
             id: line.id,
             qty: input.qty,
@@ -170,6 +168,18 @@ module.exports = class VendureApi extends VendureApiBase {
             throw new Error(`Could not adjust cart quantity"`);
         }
         return partialOrderToCartItem(result.adjustItemQuantity, input.itemId.toString());
+    }
+
+    async removeCartItem(obj: any, args: RemoveCartItemMutationArgs): Promise<RemoveCartItemResponse> {
+        const { input } = args;
+        const line = this.getOrderLineFor(input.itemId);
+        const result = await this.query<RemoveItem.Mutation, RemoveItem.Variables>(REMOVE_ITEM, {
+            id: line.id,
+        });
+        if (!result.removeItemFromOrder) {
+            throw new Error(`Could not remove item from cart"`);
+        }
+        return { itemId: input.itemId };
     }
 
     async cart(): Promise<Cart> {
@@ -198,5 +208,21 @@ module.exports = class VendureApi extends VendureApiBase {
             },
         }).then(res => res.productCategories.items);
         return allCategoriesCache;
+    }
+
+    /**
+     * Given an itemId (aka a Vendure ProductVariant id as represented in Falcon), returns the OrderLine
+     * containing that variant.
+     */
+    private getOrderLineFor(itemId: number): GetActiveOrder.Lines {
+        const session: SessionData = this.session;
+        if (!session.order) {
+            throw new Error(`No order found in session`);
+        }
+        const line = session.order.lines.find(l => l.productVariant.id === itemId.toString());
+        if (!line) {
+            throw new Error(`No OrderLine found containing the productId "${itemId}"`);
+        }
+        return line;
     }
 };
