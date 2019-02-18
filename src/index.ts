@@ -356,6 +356,9 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async signOut(): Promise<boolean> {
         const { logout } = await this.query<LogOut.Mutation>(LOG_OUT);
+        const session: SessionData = this.session;
+        session.customer = undefined;
+        session.order = undefined;
         return logout;
     }
 
