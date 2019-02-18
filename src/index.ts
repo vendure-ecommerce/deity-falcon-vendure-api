@@ -13,6 +13,9 @@ import {
     ProductsCategoryArgs,
     RemoveCartItemMutationArgs,
     RemoveCartItemResponse,
+    SetShippingMutationArgs,
+    ShippingInformation,
+    ShippingMethod,
     SortOrderDirection,
     UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
@@ -23,9 +26,11 @@ import {
     GetCategoriesList,
     GetCountryList,
     GetProduct,
+    GetShippingMethods,
     RemoveItem,
     SearchProducts,
     SearchResultSortParameter,
+    SetShippingMethod,
     SortOrder,
 } from './generated/vendure-types';
 import {
@@ -35,10 +40,20 @@ import {
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
     GET_PRODUCT,
+    GET_SHIPPING_METHODS,
     REMOVE_ITEM,
     SEARCH_PRODUCTS,
+    SET_SHIPPING_METHOD,
 } from './gql-documents';
-import { orderToCart, partialOrderToCartItem, searchResultToProduct, vendureProductToProduct } from './utils';
+import {
+    falconAddressInputToVendure,
+    orderToCart,
+    orderToTotals,
+    partialOrderToCartItem,
+    searchResultToProduct,
+    shippingQuoteToShippingMethod,
+    vendureProductToProduct,
+} from './utils';
 import { SessionData, VendureApiBase, VendureApiParams } from './vendure-api-base';
 
 // We cache the list of all categories to avoid having to make a request each time
@@ -207,6 +222,37 @@ module.exports = class VendureApi extends VendureApiBase {
                 code: c.code,
                 regions: [],
             })),
+        };
+    }
+
+    async estimateShippingMethods(): Promise<ShippingMethod[]> {
+        const result = await this.query<GetShippingMethods.Query>(GET_SHIPPING_METHODS);
+        return result.eligibleShippingMethods.map(m => shippingQuoteToShippingMethod(m));
+    }
+
+    async setShipping(obj: any, args: SetShippingMutationArgs): Promise<ShippingInformation> {
+        const { input } = args;
+        if (!input) {
+            throw new Error(`No input received for setShipping resolver`);
+        }
+        const address = input.shippingAddress;
+        if (!address) {
+            throw new Error(`No shippingAddress was specified`);
+        }
+        const result = await this.query<SetShippingMethod.Mutation, SetShippingMethod.Variables>(SET_SHIPPING_METHOD, {
+            addressInput: falconAddressInputToVendure(address),
+            shippingMethodId: input.shippingMethodCode || '',
+        });
+
+        const { setOrderShippingMethod, setOrderShippingAddress } = result;
+        if (!setOrderShippingAddress || !setOrderShippingMethod) {
+            throw new Error(`Could not set the shipping method`);
+        }
+        return {
+            paymentMethods: [
+                { code: 'checkmo', title: 'Check / Money order' },
+            ],
+            totals: orderToTotals(setOrderShippingMethod),
         };
     }
 

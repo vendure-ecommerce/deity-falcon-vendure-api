@@ -1808,6 +1808,61 @@ export namespace GetCountryList {
   };
 }
 
+export namespace GetShippingMethods {
+  export type Variables = {};
+
+  export type Query = {
+    __typename?: "Query";
+
+    eligibleShippingMethods: EligibleShippingMethods[];
+  };
+
+  export type EligibleShippingMethods = {
+    __typename?: "ShippingMethodQuote";
+
+    id: string;
+
+    description: string;
+
+    price: number;
+  };
+}
+
+export namespace SetShippingMethod {
+  export type Variables = {
+    addressInput: CreateAddressInput;
+    shippingMethodId: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    setOrderShippingAddress: Maybe<SetOrderShippingAddress>;
+
+    setOrderShippingMethod: Maybe<SetOrderShippingMethod>;
+  };
+
+  export type SetOrderShippingAddress = {
+    __typename?: "Order";
+
+    id: string;
+  };
+
+  export type SetOrderShippingMethod = {
+    __typename?: "Order";
+
+    subTotal: number;
+
+    shipping: number;
+
+    totalBeforeTax: number;
+
+    currencyCode: CurrencyCode;
+
+    total: number;
+  } & PartialOrder.Fragment;
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";

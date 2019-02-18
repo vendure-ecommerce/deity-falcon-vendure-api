@@ -198,3 +198,30 @@ export const GET_COUNTRY_LIST = gql`
         }
     }
 `;
+
+export const GET_SHIPPING_METHODS = gql`
+    query GetShippingMethods {
+        eligibleShippingMethods {
+            id
+            description
+            price
+        }
+    }
+`;
+
+export const SET_SHIPPING_METHOD = gql`
+    mutation SetShippingMethod($addressInput: CreateAddressInput!, $shippingMethodId: ID!) {
+        setOrderShippingAddress(input: $addressInput) {
+            id
+        }
+        setOrderShippingMethod(shippingMethodId: $shippingMethodId) {
+            ...PartialOrder
+            subTotal
+            shipping
+            totalBeforeTax
+            currencyCode
+            total
+        }
+    }
+    ${PARTIAL_ORDER_FRAGMENT}
+`;

@@ -1,5 +1,12 @@
-import { Cart, CartItemPayload, Product } from './generated/falcon-types';
-import { GetActiveOrder, PartialOrder, ProductWithVariants, SearchProducts } from './generated/vendure-types';
+import { AddressInput, Cart, CartItemPayload, CartTotal, Product, ShippingMethod } from './generated/falcon-types';
+import {
+    CreateAddressInput,
+    GetActiveOrder,
+    GetShippingMethods,
+    PartialOrder,
+    ProductWithVariants,
+    SearchProducts,
+} from './generated/vendure-types';
 
 /**
  * Translates a Vendure Product entity into a shape compatible with the Falcon Product
@@ -90,16 +97,28 @@ export function orderToCart(order: GetActiveOrder.ActiveOrder): Cart {
             };
         }),
         itemsQty: order.lines.reduce((qty, l) => qty + l.quantity, 0),
-        totals: [
-            {  code: 'subtotal', title: 'Subtotal', value: formatPrice(order.subTotal, 'number') },
-            {  code: 'shipping', title: 'Shipping & Handling', value: formatPrice(order.shipping, 'number') },
-            {  code: 'tax', title: 'Tax', value: formatPrice(order.total - order.totalBeforeTax, 'number') },
-            {  code: 'grand_total', title: 'Grand Total', value: formatPrice(order.total, 'number') },
-        ],
+        totals: orderToTotals(order),
         quoteCurrency: order.currencyCode,
         couponCode: '',
         billingAddress: null,
     };
+}
+
+/**
+ * Extracts the order totals into an array of Falcon CartTotal objects.
+ */
+export function orderToTotals(order: {
+    subTotal: number;
+    shipping: number;
+    totalBeforeTax: number;
+    total: number;
+}): CartTotal[] {
+    return [
+        {  code: 'subtotal', title: 'Subtotal', value: formatPrice(order.subTotal, 'number') },
+        {  code: 'shipping', title: 'Shipping & Handling', value: formatPrice(order.shipping, 'number') },
+        {  code: 'tax', title: 'Tax', value: formatPrice(order.total - order.totalBeforeTax, 'number') },
+        {  code: 'grand_total', title: 'Grand Total', value: formatPrice(order.total, 'number') },
+    ];
 }
 
 /**
@@ -119,6 +138,36 @@ export function partialOrderToCartItem(order: PartialOrder.Fragment, variantId: 
         qty: addedLine.quantity,
         sku: addedLine.productVariant.sku,
         productType: '',
+    };
+}
+
+/**
+ * Converts a Vendure ShippingMethodQuote to a Falcon ShippingMethod.
+ */
+export function shippingQuoteToShippingMethod(quote: GetShippingMethods.EligibleShippingMethods): ShippingMethod {
+    return {
+        carrierTitle: quote.description,
+        amount: formatPrice(quote.price, 'number'),
+        carrierCode: quote.id,
+        methodCode: quote.id,
+        methodTitle: quote.description,
+        priceExclTax: formatPrice(quote.price, 'number'),
+        priceInclTax: formatPrice(quote.price, 'number'),
+    };
+}
+
+/**
+ * Convert a Falcon AddressInput object into the format expected by Vendure.
+ */
+export function falconAddressInputToVendure(input: AddressInput): CreateAddressInput {
+    return {
+        fullName: `${input.firstname} ${input.lastname}`,
+        streetLine1: input.street ? (input.street[0] || '') : '',
+        streetLine2: input.street ? input.street[1] : '',
+        city: input.city,
+        countryCode: input.countryId || '',
+        postalCode: input.postcode,
+        phoneNumber: input.telephone,
     };
 }
 
