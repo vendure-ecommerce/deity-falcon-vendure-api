@@ -1716,6 +1716,8 @@ export namespace GetActiveOrder {
   export type Lines = {
     __typename?: "OrderLine";
 
+    id: string;
+
     unitPriceWithTax: number;
 
     totalPrice: number;

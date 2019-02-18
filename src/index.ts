@@ -32,9 +32,11 @@ import {
     SEARCH_PRODUCTS,
 } from './gql-documents';
 import { orderToCart, partialOrderToCartItem, searchResultToProduct, vendureProductToProduct } from './utils';
-import { VendureApiBase, VendureApiParams } from './vendure-api-base';
+import { SessionData, VendureApiBase, VendureApiParams } from './vendure-api-base';
 
+// We cache the list of all categories to avoid having to make a request each time
 let allCategoriesCache: Promise<GetCategoriesList.Items[]> | undefined;
+
 // Falcon specifies products by sku, whereas Vendure
 // deals with ids. Therefore we need to map between them.
 // Each time a ProductVariant is loaded, we need to add to
@@ -120,7 +122,6 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async product(obj: any, args: ProductQueryArgs) {
-        this.session.gotProduct = true;
         const { id } = args;
         const { product } = await this.query<GetProduct.Query, GetProduct.Variables>(GET_PRODUCT, { id });
         if (product) {
@@ -153,8 +154,16 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async updateCartItem(obj: any, args: UpdateCartItemMutationArgs): Promise<CartItemPayload> {
         const { input } = args;
+        const session: SessionData = this.session;
+        if (!session.order) {
+            throw new Error(`No order found in session`);
+        }
+        const line = session.order.lines.find(l => l.productVariant.id === input.itemId.toString());
+        if (!line) {
+            throw new Error(`No OrderLine found containing the productId "${input.itemId}"`);
+        }
         const result = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
-            id: input.itemId.toString(),
+            id: line.id,
             qty: input.qty,
         });
         if (!result.adjustItemQuantity) {
@@ -166,11 +175,13 @@ module.exports = class VendureApi extends VendureApiBase {
     async cart(): Promise<Cart> {
         const result = await this.query<GetActiveOrder.Query, GetActiveOrder.Variables>(ACTIVE_ORDER);
         const order = result.activeOrder;
+
         if (!order) {
             return {
                 items: [],
             };
         }
+        this.session.order = order;
         return orderToCart(order);
     }
 

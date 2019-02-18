@@ -150,6 +150,7 @@ export const ACTIVE_ORDER = gql`
             currencyCode
             total
             lines {
+                id
                 unitPriceWithTax
                 totalPrice
                 quantity

@@ -12,6 +12,8 @@ import { ConfigurableConstructorParams } from '@deity/falcon-server-env/src/type
 import { Request } from 'apollo-server-env';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
 
+import { GetActiveOrder } from './generated/vendure-types';
+
 export interface VendureApiConfig {
     host: string;
     port: number;
@@ -20,6 +22,12 @@ export interface VendureApiConfig {
 }
 
 export type VendureApiParams = ConfigurableContainerConstructorParams & ConfigurableConstructorParams<VendureApiConfig>;
+
+export interface SessionData {
+    cookieSession: string;
+    cookieSessionSig: string;
+    order?: GetActiveOrder.ActiveOrder;
+}
 
 /**
  * The base class deals with the request/response housekeeping and session management whereas the VendureApiBase
@@ -85,10 +93,11 @@ export class VendureApiBase extends ApiDataSource {
     }
 
     willSendRequest(request: ContextRequestOptions): Promise<void> {
-        const session = this.session.cookieSession;
-        const sig = this.session.cookieSessionSig;
-        if (session && sig) {
-            request.headers.set('Cookie', `${session}; ${sig}`);
+        const session: SessionData = this.session;
+        const sessionCookie = session.cookieSession;
+        const sigCookie = session.cookieSessionSig;
+        if (sessionCookie && sigCookie) {
+            request.headers.set('Cookie', `${sessionCookie}; ${sigCookie}`);
         }
         return super.willSendRequest(request);
     }
@@ -97,13 +106,14 @@ export class VendureApiBase extends ApiDataSource {
         // TODO: implement handling for bearer-token-based auth
         const cookies = (res.headers.get('set-cookie') || '').split(/[,;]\s*/);
         const data = await super.didReceiveResponse(res, req);
+        const session: SessionData = this.session;
 
         for (const part of cookies) {
             if (/^session=/.test(part)) {
-                this.session.cookieSession = part;
+                session.cookieSession = part;
             }
             if (/^session.sig=/.test(part)) {
-                this.session.cookieSessionSig = part;
+                session.cookieSessionSig = part;
             }
         }
         return data;
