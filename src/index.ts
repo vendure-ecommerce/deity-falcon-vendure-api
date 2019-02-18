@@ -19,6 +19,7 @@ import {
     SetShippingMutationArgs,
     ShippingInformation,
     ShippingMethod,
+    SignInMutationArgs,
     SortOrderDirection,
     UpdateCartItemMutationArgs,
 } from './generated/falcon-types';
@@ -34,6 +35,8 @@ import {
     GetOrderByCode,
     GetProduct,
     GetShippingMethods,
+    LogIn,
+    LogOut,
     RemoveItem,
     SearchProducts,
     SearchResultSortParameter,
@@ -54,6 +57,8 @@ import {
     GET_ORDER_NEXT_STATES,
     GET_PRODUCT,
     GET_SHIPPING_METHODS,
+    LOG_IN,
+    LOG_OUT,
     REMOVE_ITEM,
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
@@ -336,6 +341,31 @@ module.exports = class VendureApi extends VendureApiBase {
         }
         return vendureOrderToFalcon(orderByCode);
     }
+
+    async signIn(obj: any, args: SignInMutationArgs): Promise<boolean> {
+        const { input } = args;
+        const { login } = await this.query<LogIn.Mutation, LogIn.Variables>(LOG_IN, {
+            username: input.email || '',
+            password: input.password || '',
+        });
+        return !!login.user;
+    }
+
+    async signOut(): Promise<boolean> {
+        const { logout } = await this.query<LogOut.Mutation>(LOG_OUT);
+        return logout;
+    }
+
+    /*signUp(obj: any, args: SignUpMutationArgs): Promise<boolean> {
+        const { input } = args;
+        const {} = this.query<CreateAccount.Mutation, CreateAccount.Variables>(CREATE_ACCOUNT, {
+            input: {
+                firstName: input.firstname,
+                lastName: input.lastname,
+                emailAddress: input.email,
+            }
+        })
+    }*/
 
     /**
      * Transitions the state of the Vendure order to the given state.

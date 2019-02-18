@@ -2089,6 +2089,55 @@ export namespace GetOrderByCode {
   export type ShippingAddress = OrderAddress.Fragment;
 }
 
+export namespace CreateAccount {
+  export type Variables = {
+    input: RegisterCustomerInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    registerCustomerAccount: boolean;
+  };
+}
+
+export namespace LogIn {
+  export type Variables = {
+    username: string;
+    password: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    login: Login;
+  };
+
+  export type Login = {
+    __typename?: "LoginResult";
+
+    user: User;
+  };
+
+  export type User = {
+    __typename?: "CurrentUser";
+
+    id: string;
+
+    identifier: string;
+  };
+}
+
+export namespace LogOut {
+  export type Variables = {};
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    logout: boolean;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";

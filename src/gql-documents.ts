@@ -345,3 +345,26 @@ export const GET_ORDER_BY_CODE = gql`
     }
     ${ORDER_ADDRESS_FRAGMENT}
 `;
+
+export const CREATE_ACCOUNT = gql`
+    mutation CreateAccount($input: RegisterCustomerInput!) {
+        registerCustomerAccount(input: $input)
+    }
+`;
+
+export const LOG_IN = gql`
+    mutation LogIn($username: String!, $password: String!) {
+        login(username: $username, password: $password, rememberMe: true) {
+            user {
+                id
+                identifier
+            }
+        }
+    }
+`;
+
+export const LOG_OUT = gql`
+    mutation LogOut {
+        logout
+    }
+`;
