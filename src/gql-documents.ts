@@ -366,3 +366,12 @@ export const GET_ORDERS = gql`
     }
     ${FULL_ORDER_FRAGMENT}
 `;
+
+export const GET_ORDER = gql`
+    query GetOrder($id: ID!) {
+        order(id: $id) {
+            ...FullOrder
+        }
+    }
+    ${FULL_ORDER_FRAGMENT}
+`;

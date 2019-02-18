@@ -201,6 +201,7 @@ export function activeCustomerToCustomer(activeCustomer: GetCustomer.ActiveCusto
 export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
     const paymentMethodName = order.payments ? order.payments[0].method : null;
     return {
+        createdAt: order.createdAt,
         incrementId: order.id,
         entityId: +order.id,
         customerFirstname: order.customer && order.customer.firstName,
@@ -219,12 +220,13 @@ export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
             };
         }),
         couponCode: '',
+        orderCurrencyCode: order.currencyCode,
         subtotal: formatPrice(order.subTotal, 'string'),
         shippingAmount: formatPrice(order.shipping, 'string'),
         taxAmount: formatPrice(order.total - order.totalBeforeTax, 'string'),
         grandTotal: formatPrice(order.total, 'string'),
         shippingAddress: order.shippingAddress ? vendureAddressToFalcon(order.shippingAddress) : null,
-        billingAddress: order.billingAddress ? vendureAddressToFalcon(order.billingAddress) : null,
+        billingAddress: order.shippingAddress ? vendureAddressToFalcon(order.shippingAddress) : null,
         paymentMethodName,
     };
 }
@@ -243,8 +245,8 @@ function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCustomer.Add
 
     return {
         id,
-        firstname: fullName.split(' ')[0],
-        lastname: fullName.split(' ')[1],
+        firstname: fullName.split(' ')[0] || '',
+        lastname: fullName.split(' ')[1] || '',
         street: [address.streetLine1, address.streetLine2],
         city: address.city || '',
         postcode: address.postalCode || '',

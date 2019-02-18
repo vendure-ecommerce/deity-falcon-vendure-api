@@ -8,7 +8,10 @@ import {
     CategoryQueryArgs,
     CountryList,
     Customer,
-    Order, Orders, OrdersQueryArgs,
+    Order,
+    OrderQueryArgs,
+    Orders,
+    OrdersQueryArgs,
     PlaceOrderMutationArgs,
     PlaceOrderResult,
     ProductList,
@@ -28,12 +31,15 @@ import {
     AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
-    CreateAccount, FullOrder,
+    CreateAccount,
+    FullOrder,
     GetActiveOrder,
     GetCategoriesList,
     GetCountryList,
-    GetCustomer, GetCustomerOrders,
+    GetCustomer,
+    GetCustomerOrders,
     GetNextStates,
+    GetOrder,
     GetOrderByCode,
     GetProduct,
     GetShippingMethods,
@@ -56,8 +62,10 @@ import {
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
+    GET_ORDER,
     GET_ORDER_BY_CODE,
-    GET_ORDER_NEXT_STATES, GET_ORDERS,
+    GET_ORDER_NEXT_STATES,
+    GET_ORDERS,
     GET_PRODUCT,
     GET_SHIPPING_METHODS,
     LOG_IN,
@@ -404,6 +412,17 @@ module.exports = class VendureApi extends VendureApiBase {
                 totalPages: Math.floor(activeCustomer.orders.totalItems / perPage),
             },
         };
+    }
+
+    async order(obj: any, args: OrderQueryArgs): Promise<Order | null> {
+        const { id } = args;
+        const { order } = await this.query<GetOrder.Query, GetOrder.Variables>(GET_ORDER, {
+            id: id.toString(),
+        });
+        if (!order) {
+            return null;
+        }
+        return vendureOrderToFalcon(order);
     }
 
     /**

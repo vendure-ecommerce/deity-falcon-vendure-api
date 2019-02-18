@@ -2010,6 +2010,20 @@ export namespace GetCustomerOrders {
   export type Items = FullOrder.Fragment;
 }
 
+export namespace GetOrder {
+  export type Variables = {
+    id: string;
+  };
+
+  export type Query = {
+    __typename?: "Query";
+
+    order: Maybe<Order>;
+  };
+
+  export type Order = FullOrder.Fragment;
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
