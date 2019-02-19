@@ -11,7 +11,9 @@ generates:
       namingConvention:
         enumValues: "keep"
   src/generated/falcon-types.ts:
-    schema: "./src/falcon-shop-schema.graphql"
+    schema:
+      - "./node_modules/@deity/falcon-server/src/schema.graphql"
+      - "./node_modules/@deity/falcon-shop-extension/src/schema.graphql"
     plugins:
       - add: "// tslint:disable"
       - "typescript-common"
