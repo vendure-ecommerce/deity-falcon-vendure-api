@@ -24,15 +24,15 @@ import {
 } from './generated/vendure-types';
 
 /**
- * Converts a Category to a Falcon MenuItem
+ * Converts a Category to a Falcon MenuItem, recursily nesting children.
  */
-export function categoryToMenuItem(category: GetCategoriesList.Items): MenuItem {
-    return {
+export function categoryToMenuItem(allCategories: GetCategoriesList.Items[]) {
+    return (category: GetCategoriesList.Items): MenuItem => ({
         id: category.id,
         name: category.name,
-        children: [],
-        urlPath: `${category.id}-${category.name}`,
-    };
+        children: allCategories.filter(c => c.parent.id === category.id).map(categoryToMenuItem(allCategories)),
+        urlPath: `category/${category.id}-${category.name}`,
+    });
 }
 
 /**

@@ -6,7 +6,6 @@ import {
     AddressList,
     AddressQueryArgs,
     AddToCartMutationArgs,
-    BackendConfig,
     Cart,
     CartItemPayload,
     Category,
@@ -141,7 +140,9 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async menu(): Promise<MenuItem[]> {
         const allCategories = await this.getAllCategories();
-        return allCategories.map(c => categoryToMenuItem(c));
+        return allCategories
+            .filter(category => category.parent.name === '__root_category__')
+            .map(categoryToMenuItem(allCategories));
     }
 
     async category(obj: any, args: CategoryQueryArgs): Promise<Category> {

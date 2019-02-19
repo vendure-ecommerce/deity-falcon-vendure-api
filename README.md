@@ -17,25 +17,4 @@ Most of the basic functions are working - listing products, adding to cart, chec
 ## Testing
 
 1. Assumes a Vendure server running on port 5000 with the GraphQL api set to "api".
-2. The menu config for Falcon client can be configured like this:
-    ```json
-    {
-      "header": [
-        {
-          "name": "Electronics",
-          "url": "/category/2-electronics",
-          "children": [
-            {
-              "name": "Computers",
-              "url": "/category/4-computers"
-            },
-            {
-              "name": "Photo",
-              "url": "/category/3-photo"
-            }
-          ]
-        }
-      ]
-    }
-    ```
-3. Start the Falcon client (client is not included in this repo to keep things minimal)
+2. Start the Falcon client (client is not included in this repo to keep things minimal)
