@@ -1,10 +1,10 @@
 {
-  "name": "falcon-vendure-api",
-  "version": "0.1.0",
+  "name": "@vendure/falcon-vendure-api",
+  "version": "0.1.0-alpha.1",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "author": "Michael Bromley",
-  "license": "MIT",
+  "license": "OSL-3.0",
   "private": false,
   "dependencies": {
     "concurrently": "^4.1.0",
