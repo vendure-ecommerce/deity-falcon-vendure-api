@@ -12,17 +12,25 @@ Most of the basic functions are working - listing products, adding to cart, chec
 2. In the Vendure config, set `authOptions.requireVerification` to `false` so that customer accounts can be created without the need for the email verification step.
 3. In the Vendure config, set the port to `5000` to avoid conflict with the default Falcon client server.
 3. In your Falcon Server project, install `@vendure/falcon-vendure-api`.
-4. Configure the extension: 
+4. Configure the extension: In the `config/default.json` file, replace the `api-magento2` config with this:
     ```json
     {
     "apis": {
-      "vendure-api": {
+      "api-vendure": {
         "package": "@vendure/falcon-vendure-api",
         "config": {
           "host": "localhost",
           "port": 5000,
           "apiPath": "api",
           "protocol": "http"
+        }
+      }
+    },
+    "extensions": {
+      "shop": {
+        "package": "@deity/falcon-shop-extension",
+        "config": {
+          "api": "api-vendure"
         }
       }
     }

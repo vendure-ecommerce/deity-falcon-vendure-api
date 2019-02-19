@@ -1,15 +1,15 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "author": "Michael Bromley",
   "license": "OSL-3.0",
   "private": false,
   "dependencies": {
-    "concurrently": "^4.1.0",
     "graphql-tag": "^2.10.1"
   },
+  "files": ["dist/**/*"],
   "devDependencies": {
     "@deity/falcon-server": "^0.1.2",
     "@deity/falcon-shop-extension": "^0.3.0",
@@ -17,6 +17,7 @@
     "@types/graphql": "^14.0.7",
     "@types/koa-router": "^7.0.39",
     "@types/node": "^11.9.3",
+    "concurrently": "^4.1.0",
     "config": "^3.0.1",
     "cross-env": "^5.2.0",
     "graphql-code-generator": "^0.16.1",
