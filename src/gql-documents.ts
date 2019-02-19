@@ -23,6 +23,8 @@ export const PRODUCT_FRAGMENT = gql`
             code
             name
             options {
+                id
+                code
                 name
             }
         }
@@ -30,7 +32,16 @@ export const PRODUCT_FRAGMENT = gql`
             id
             name
             sku
+            featuredAsset {
+                id
+                preview
+            }
             facetValues {
+                name
+            }
+            options {
+                id
+                code
                 name
             }
             price
@@ -92,6 +103,8 @@ export const SEARCH_PRODUCTS = gql`
         search(input: $input) {
             items {
                 productId
+                productVariantId
+                productVariantName
                 description
                 productPreview
                 sku

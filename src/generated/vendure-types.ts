@@ -1640,6 +1640,10 @@ export namespace SearchProducts {
 
     productId: string;
 
+    productVariantId: string;
+
+    productVariantName: string;
+
     description: string;
 
     productPreview: string;
@@ -2084,6 +2088,10 @@ export namespace ProductWithVariants {
   export type Options = {
     __typename?: "ProductOption";
 
+    id: string;
+
+    code: Maybe<string>;
+
     name: Maybe<string>;
   };
 
@@ -2096,17 +2104,39 @@ export namespace ProductWithVariants {
 
     sku: string;
 
+    featuredAsset: Maybe<_FeaturedAsset>;
+
     facetValues: _FacetValues[];
+
+    options: _Options[];
 
     price: number;
 
     currencyCode: CurrencyCode;
   };
 
+  export type _FeaturedAsset = {
+    __typename?: "Asset";
+
+    id: string;
+
+    preview: string;
+  };
+
   export type _FacetValues = {
     __typename?: "FacetValue";
 
     name: string;
+  };
+
+  export type _Options = {
+    __typename?: "ProductOption";
+
+    id: string;
+
+    code: Maybe<string>;
+
+    name: Maybe<string>;
   };
 }
 

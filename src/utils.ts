@@ -31,7 +31,7 @@ export function categoryToMenuItem(allCategories: GetCategoriesList.Items[]) {
         id: category.id,
         name: category.name,
         children: allCategories.filter(c => c.parent.id === category.id).map(categoryToMenuItem(allCategories)),
-        urlPath: `category/${category.id}-${category.name}`,
+        urlPath: `/category/${category.id}-${category.name}`,
     });
 }
 
@@ -39,42 +39,30 @@ export function categoryToMenuItem(allCategories: GetCategoriesList.Items[]) {
  * Translates a Vendure Product entity into a shape compatible with the Falcon Product
  * entity.
  */
-export function vendureProductToProduct(vendureProduct: ProductWithVariants.Fragment): Product {
-    const { id, name, description, featuredAsset } = vendureProduct;
+export function vendureProductToProduct(vendureProduct: ProductWithVariants.Fragment, variantId: string): Product {
+    const { id, name, description, featuredAsset, variants } = vendureProduct;
+    const variant = variants.find(v => v.id === variantId);
+    if (!variant) {
+        throw new Error(`Could not find ProductVariant with the id "${variantId}"`);
+    }
+    const image = variant.featuredAsset ? variant.featuredAsset.preview : featuredAsset && featuredAsset.preview;
     return {
         id,
-        sku: vendureProduct.variants[0].sku,
-        name,
-        image: featuredAsset && featuredAsset.preview,
-        urlPath: formatProductUrl(vendureProduct.id, vendureProduct.slug),
+        sku: variant.sku,
+        name: variant.name,
+        image,
+        urlPath: formatProductUrl(vendureProduct.id, variantId, vendureProduct.slug),
         thumbnail: featuredAsset ? featuredAsset.preview + '?w=300&h=300&mode=crop' : null,
         priceType: 'priceType',
-        price: formatPrice(vendureProduct.variants[0].price, 'string'),
-        minPrice: formatPrice(vendureProduct.variants[0].price, 'string'),
-        maxPrice: formatPrice(vendureProduct.variants[0].price, 'string'),
-        currency: vendureProduct.variants[0].currencyCode,
+        price: formatPrice(variant.price, 'string'),
+        currency: variant.currencyCode,
         description,
         stock: {
             isInStock: true,
             qty: 100,
         },
         type: 'type',
-        configurableOptions: vendureProduct.optionGroups.map(og => {
-            return {
-                id: og.id,
-                attributeId: og.code,
-                label: og.name,
-                position: 'position',
-                productId: vendureProduct.id,
-                values: og.options.map(o => {
-                    return {
-                        inStock: [],
-                        label: o.name,
-                        valueIndex: 'valueIndex',
-                    };
-                }),
-            };
-        }),
+        configurableOptions: [],
         bundleOptions: [],
         gallery: vendureProduct.assets.map(a => {
             return {
@@ -96,11 +84,11 @@ export function vendureProductToProduct(vendureProduct: ProductWithVariants.Frag
 export function searchResultToProduct(searchResult: SearchProducts.Items): Product {
     return {
         sku: searchResult.sku,
-        id: searchResult.productId,
-        name: searchResult.productName,
+        id: searchResult.productVariantId,
+        name: searchResult.productVariantName,
         price: formatPrice(searchResult.price, 'string'),
         thumbnail: searchResult.productPreview + '?w=300&h=300&mode=crop',
-        urlPath: formatProductUrl(searchResult.productId, searchResult.slug),
+        urlPath: formatProductUrl(searchResult.productId, searchResult.productVariantId, searchResult.slug),
     };
 }
 
@@ -277,8 +265,8 @@ export function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCusto
     };
 }
 
-function formatProductUrl(id: string, slug: string): string {
-    return `/product/${id}-${slug}`;
+function formatProductUrl(prodId: string, variantId: string, slug: string): string {
+    return `/product/${prodId}-${variantId}-${slug}`;
 }
 
 /**

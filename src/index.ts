@@ -182,7 +182,7 @@ module.exports = class VendureApi extends VendureApiBase {
 
         const response = await this.query<SearchProducts.Query, SearchProducts.Variables>(SEARCH_PRODUCTS, {
             input: {
-                groupByProduct: true,
+                groupByProduct: false,
                 facetIds: facetValueIds,
                 take,
                 skip,
@@ -206,10 +206,11 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async product(obj: any, args: ProductQueryArgs) {
         const { id } = args;
-        const { product } = await this.query<GetProduct.Query, GetProduct.Variables>(GET_PRODUCT, { id });
+        const [prodId, variantId] = id.split('-');
+        const { product } = await this.query<GetProduct.Query, GetProduct.Variables>(GET_PRODUCT, { id: prodId });
         if (product) {
             product.variants.forEach(v => skuMap.set(v.sku, v.id));
-            return vendureProductToProduct(product);
+            return vendureProductToProduct(product, variantId);
         } else {
             return null;
         }
