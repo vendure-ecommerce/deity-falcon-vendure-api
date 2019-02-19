@@ -17,11 +17,11 @@ export interface SortOrderInput {
 }
 
 export interface FilterInput {
-  conditionType?: Maybe<string>;
+  operator?: Maybe<FilterOperator>;
 
   field?: Maybe<string>;
 
-  value?: Maybe<string>;
+  value?: Maybe<(Maybe<string>)[]>;
 }
 
 export interface ShopPageQuery {
@@ -244,6 +244,18 @@ export enum SortOrderDirection {
   desc = "desc"
 }
 
+export enum FilterOperator {
+  eq = "eq",
+  neq = "neq",
+  lt = "lt",
+  lte = "lte",
+  gt = "gt",
+  gte = "gte",
+  in = "in",
+  nin = "nin",
+  range = "range"
+}
+
 // ====================================================
 // Types
 // ====================================================
@@ -253,6 +265,8 @@ export interface Query {
   backendConfig?: Maybe<BackendConfig>;
   /** URL-resolve query */
   url?: Maybe<Url>;
+
+  menu?: Maybe<(Maybe<MenuItem>)[]>;
 
   category?: Maybe<Category>;
 
@@ -325,6 +339,18 @@ export interface Url {
   type: string;
   /** Redirect flag if the given URL must be redirected to the specified "path" URL */
   redirect?: Maybe<boolean>;
+}
+
+export interface MenuItem {
+  id: string;
+
+  name: string;
+
+  urlPath: string;
+
+  cssClass?: Maybe<string>;
+
+  children: (Maybe<MenuItem>)[];
 }
 
 export interface Category {

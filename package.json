@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@deity/falcon-server": "^0.1.2",
-    "@deity/falcon-shop-extension": "^0.2.0",
+    "@deity/falcon-shop-extension": "^0.3.0",
     "@types/eventemitter2": "^4.1.0",
     "@types/graphql": "^14.0.7",
     "@types/koa-router": "^7.0.39",

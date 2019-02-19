@@ -5,17 +5,35 @@ import {
     CartItemPayload,
     CartTotal,
     Customer,
+    MenuItem,
     Order,
-    Product, ShippingMethod,
+    Product,
+    ShippingMethod,
 } from './generated/falcon-types';
 import {
-    CreateAddressInput, FullOrder,
-    GetActiveOrder, GetCustomer, GetOrderByCode,
-    GetShippingMethods, OrderAddress,
+    CreateAddressInput,
+    FullOrder,
+    GetActiveOrder,
+    GetCategoriesList,
+    GetCustomer,
+    GetShippingMethods,
+    OrderAddress,
     PartialOrder,
     ProductWithVariants,
     SearchProducts,
 } from './generated/vendure-types';
+
+/**
+ * Converts a Category to a Falcon MenuItem
+ */
+export function categoryToMenuItem(category: GetCategoriesList.Items): MenuItem {
+    return {
+        id: category.id,
+        name: category.name,
+        children: [],
+        urlPath: `${category.id}-${category.name}`,
+    };
+}
 
 /**
  * Translates a Vendure Product entity into a shape compatible with the Falcon Product

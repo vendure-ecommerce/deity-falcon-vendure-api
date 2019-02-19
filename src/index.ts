@@ -6,12 +6,17 @@ import {
     AddressList,
     AddressQueryArgs,
     AddToCartMutationArgs,
+    BackendConfig,
     Cart,
     CartItemPayload,
     Category,
-    CategoryQueryArgs, ChangeCustomerPasswordMutationArgs,
+    CategoryQueryArgs,
+    ChangeCustomerPasswordMutationArgs,
     CountryList,
-    Customer, EditAddressMutationArgs, EditCustomerMutationArgs,
+    Customer,
+    EditAddressMutationArgs,
+    EditCustomerMutationArgs,
+    MenuItem,
     Order,
     OrderQueryArgs,
     Orders,
@@ -22,7 +27,8 @@ import {
     ProductQueryArgs,
     ProductsCategoryArgs,
     RemoveCartItemMutationArgs,
-    RemoveCartItemResponse, RemoveCustomerAddressMutationArgs,
+    RemoveCartItemResponse,
+    RemoveCustomerAddressMutationArgs,
     SetShippingMutationArgs,
     ShippingInformation,
     ShippingMethod,
@@ -82,6 +88,7 @@ import {
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
+    categoryToMenuItem,
     falconAddressInputToVendure,
     orderToCart,
     orderToTotals,
@@ -120,6 +127,21 @@ module.exports = class VendureApi extends VendureApiBase {
             },
         };
         addResolveFunctionsToSchema({ schema: (this.gqlServerConfig as any).schema, resolvers });
+    }
+
+    async fetchBackendConfig(): Promise<any> {
+        // TODO: fetch this data from the backend
+        this.session.currency = 'USD';
+        return {
+            locales: ['en-US'],
+            activeLocale: 'en-US',
+            defaultLocale: 'en-US',
+        };
+    }
+
+    async menu(): Promise<MenuItem[]> {
+        const allCategories = await this.getAllCategories();
+        return allCategories.map(c => categoryToMenuItem(c));
     }
 
     async category(obj: any, args: CategoryQueryArgs): Promise<Category> {
