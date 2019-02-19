@@ -1,9 +1,14 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vendure-ecommerce/deity-falcon-vendure-api/"
+  },
   "author": "Michael Bromley",
+  "keywords": ["deity", "falcon", "vendure", "api", "ecommerce"],
   "license": "OSL-3.0",
   "private": false,
   "dependencies": {

@@ -1,6 +1,6 @@
 # Falcon Vendure API
 
-This is an experimental api provider for [DEITY Falcon](https://github.com/deity-io/falcon). The goal is to allow Falcon to be used as a storefront for Vendure.
+This is an experimental api provider for [DEITY Falcon](https://github.com/deity-io/falcon). The goal is to allow Falcon to be used as a storefront for [Vendure](https://www.vendure.io/).
 
 ## Current Status
 
