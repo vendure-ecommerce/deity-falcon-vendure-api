@@ -192,6 +192,7 @@ export function activeCustomerToCustomer(activeCustomer: GetCustomer.ActiveCusto
         email: activeCustomer.emailAddress,
         firstname: activeCustomer.firstName,
         lastname: activeCustomer.lastName,
+        websiteId: 1,
     };
 }
 

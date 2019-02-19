@@ -1,15 +1,17 @@
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
+    AddAddressMutationArgs,
     Address,
-    AddressList, AddressQueryArgs,
+    AddressList,
+    AddressQueryArgs,
     AddToCartMutationArgs,
     Cart,
     CartItemPayload,
     Category,
-    CategoryQueryArgs,
+    CategoryQueryArgs, ChangeCustomerPasswordMutationArgs,
     CountryList,
-    Customer,
+    Customer, EditAddressMutationArgs, EditCustomerMutationArgs,
     Order,
     OrderQueryArgs,
     Orders,
@@ -20,7 +22,7 @@ import {
     ProductQueryArgs,
     ProductsCategoryArgs,
     RemoveCartItemMutationArgs,
-    RemoveCartItemResponse,
+    RemoveCartItemResponse, RemoveCustomerAddressMutationArgs,
     SetShippingMutationArgs,
     ShippingInformation,
     ShippingMethod,
@@ -450,6 +452,26 @@ module.exports = class VendureApi extends VendureApiBase {
         return addresses.items.find(a => !!(a && (a.id === args.id))) || null;
     }
 
+    async editAddress(obj: any, args: EditAddressMutationArgs): Promise<Address | null> {
+        return this.throwNotImplementedError('editAddress');
+    }
+
+    async addAddress(obj: any, args: AddAddressMutationArgs): Promise<Address | null> {
+        return this.throwNotImplementedError('addAddress');
+    }
+
+    async removeCustomerAddress(obj: any, args: RemoveCustomerAddressMutationArgs): Promise<boolean> {
+        return this.throwNotImplementedError('removeCustomerAddress');
+    }
+
+    async editCustomer(obj: any, args: EditCustomerMutationArgs): Promise<Customer | null> {
+        return this.throwNotImplementedError('editCustomer');
+    }
+
+    async changeCustomerPassword(obj: any, args: ChangeCustomerPasswordMutationArgs): Promise<boolean> {
+        return this.throwNotImplementedError('changeCustomerPassword');
+    }
+
     /**
      * Transitions the state of the Vendure order to the given state.
      */
@@ -492,5 +514,9 @@ module.exports = class VendureApi extends VendureApiBase {
             throw new Error(`No OrderLine found containing the productId "${itemId}"`);
         }
         return line;
+    }
+
+    private throwNotImplementedError(resolverName: string): never {
+        throw new Error(`[vendure-api-provider] ${resolverName} is not yet implemented.`);
     }
 };
