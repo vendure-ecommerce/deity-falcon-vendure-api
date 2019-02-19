@@ -1,7 +1,8 @@
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
-    AddressList,
+    Address,
+    AddressList, AddressQueryArgs,
     AddToCartMutationArgs,
     Cart,
     CartItemPayload,
@@ -439,6 +440,14 @@ module.exports = class VendureApi extends VendureApiBase {
         }
         const items = activeCustomer.addresses.map(a => vendureAddressToFalcon(a));
         return { items };
+    }
+
+    async address(obj: any, args: AddressQueryArgs): Promise<Address | null> {
+        const addresses = await this.addresses();
+        if (!addresses) {
+            return null;
+        }
+        return addresses.items.find(a => !!(a && (a.id === args.id))) || null;
     }
 
     /**
