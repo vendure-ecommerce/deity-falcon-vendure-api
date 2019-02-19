@@ -1,6 +1,7 @@
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
+    AddressList,
     AddToCartMutationArgs,
     Cart,
     CartItemPayload,
@@ -84,6 +85,7 @@ import {
     partialOrderToCartItem,
     searchResultToProduct,
     shippingQuoteToShippingMethod,
+    vendureAddressToFalcon,
     vendureOrderToFalcon,
     vendureProductToProduct,
 } from './utils';
@@ -423,6 +425,20 @@ module.exports = class VendureApi extends VendureApiBase {
             return null;
         }
         return vendureOrderToFalcon(order);
+    }
+
+    async addresses(): Promise<AddressList | null> {
+        const { activeCustomer } = await this.query<GetCustomer.Query>(GET_CUSTOMER);
+        if (!activeCustomer) {
+            return null;
+        }
+        if (!activeCustomer.addresses) {
+            return {
+                items: [],
+            };
+        }
+        const items = activeCustomer.addresses.map(a => vendureAddressToFalcon(a));
+        return { items };
     }
 
     /**

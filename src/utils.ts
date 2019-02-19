@@ -234,7 +234,7 @@ export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
 /**
  * Coverts an Address from Vendure into the Falcon format.
  */
-function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCustomer.Addresses): Address {
+export function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCustomer.Addresses): Address {
     function isOrderAddress(a: OrderAddress.Fragment | GetCustomer.Addresses): a is OrderAddress.Fragment {
         return !a.hasOwnProperty('id');
     }
