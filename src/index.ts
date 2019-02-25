@@ -131,9 +131,10 @@ module.exports = class VendureApi extends VendureApiBase {
     async fetchBackendConfig(): Promise<any> {
         // TODO: fetch this data from the backend
         this.session.currency = 'USD';
+        this.context.session.locale = 'en-US';
+
         return {
             locales: ['en-US'],
-            activeLocale: 'en-US',
             defaultLocale: 'en-US',
         };
     }

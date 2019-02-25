@@ -10,7 +10,7 @@
       "config": {
         "host": "localhost",
         "port": 5000,
-        "apiPath": "api",
+        "apiPath": "shop-api",
         "protocol": "http"
       }
     }

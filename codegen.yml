@@ -1,7 +1,7 @@
 overwrite: true
 generates:
   src/generated/vendure-types.ts:
-    schema: "../vendure/schema.json"
+    schema: "../vendure/schema-shop.json"
     documents: "./src/gql-documents.ts"
     plugins:
       - add: "// tslint:disable"

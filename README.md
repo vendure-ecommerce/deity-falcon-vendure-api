@@ -21,7 +21,7 @@ Most of the basic functions are working - listing products, adding to cart, chec
         "config": {
           "host": "localhost",
           "port": 5000,
-          "apiPath": "api",
+          "apiPath": "shop-api",
           "protocol": "http"
         }
       }
