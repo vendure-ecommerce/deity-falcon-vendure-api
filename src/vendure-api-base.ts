@@ -1,3 +1,4 @@
+import Logger from '@deity/falcon-logger';
 import {
     ApiDataSource,
     ApiUrlPriority,
@@ -90,14 +91,12 @@ export class VendureApiBase extends ApiDataSource {
                     },
                 });
             if (response.errors) {
-                // tslint:disable-next-line:no-console
-                console.log(JSON.stringify(response.errors[0], null, 2));
+                Logger.error(JSON.stringify(response.errors[0], null, 2));
                 throw new Error(response.errors[0].message);
             }
             return response.data;
         } catch (e) {
-            // tslint:disable-next-line:no-console
-            console.log(JSON.stringify(e, null, 2));
+            Logger.error(JSON.stringify(e, null, 2));
             const errorMessage = (e.extensions && e.extensions && e.extensions.response &&
                 e.extensions.response.body && e.extensions.response.body.errors &&
                 e.extensions.response.body.errors.map((err: any) => err.message).join(', ')) || e.message;

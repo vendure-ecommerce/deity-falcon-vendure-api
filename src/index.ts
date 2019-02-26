@@ -1,3 +1,4 @@
+import Logger from '@deity/falcon-logger';
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {

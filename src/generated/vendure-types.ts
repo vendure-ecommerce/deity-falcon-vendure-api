@@ -258,8 +258,6 @@ export interface RegisterCustomerInput {
 }
 
 export interface UpdateCustomerInput {
-  id: string;
-
   title?: Maybe<string>;
 
   firstName?: Maybe<string>;
