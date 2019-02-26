@@ -61,7 +61,7 @@ import {
     SetCustomerForOrder,
     SetShippingMethod,
     SortOrder,
-    TransitionOrderToState,
+    TransitionOrderToState, UpdateCustomer,
 } from './generated/vendure-types';
 import {
     ACTIVE_ORDER,
@@ -84,7 +84,7 @@ import {
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
-    TRANSITION_ORDER_STATE,
+    TRANSITION_ORDER_STATE, UPDATE_CUSTOMER,
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
@@ -491,7 +491,17 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async editCustomer(obj: any, args: EditCustomerMutationArgs): Promise<Customer | null> {
-        return this.throwNotImplementedError('editCustomer');
+        const { input } = args;
+        const result = await this.query<UpdateCustomer.Mutation, UpdateCustomer.Variables>(UPDATE_CUSTOMER, {
+            input: {
+                firstName: input.firstname,
+                lastName: input.lastname,
+                emailAddress: input.email,
+            },
+        });
+        return {
+            id: +result.updateCustomer.id,
+        };
     }
 
     async changeCustomerPassword(obj: any, args: ChangeCustomerPasswordMutationArgs): Promise<boolean> {

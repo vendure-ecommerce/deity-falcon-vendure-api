@@ -388,3 +388,14 @@ export const GET_ORDER = gql`
     }
     ${FULL_ORDER_FRAGMENT}
 `;
+
+export const UPDATE_CUSTOMER = gql`
+    mutation UpdateCustomer($input: UpdateCustomerInput!) {
+        updateCustomer(input: $input) {
+            id
+            firstName
+            lastName
+            emailAddress
+        }
+    }
+`;

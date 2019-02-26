@@ -1242,6 +1242,30 @@ export namespace GetOrder {
   export type Order = FullOrder.Fragment;
 }
 
+export namespace UpdateCustomer {
+  export type Variables = {
+    input: UpdateCustomerInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    updateCustomer: UpdateCustomer;
+  };
+
+  export type UpdateCustomer = {
+    __typename?: "Customer";
+
+    id: string;
+
+    firstName: string;
+
+    lastName: string;
+
+    emailAddress: string;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
