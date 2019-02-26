@@ -14,7 +14,7 @@ import {
     CountryList,
     Customer,
     EditAddressMutationArgs,
-    EditCustomerMutationArgs,
+    EditCustomerMutationArgs, Maybe,
     MenuItem,
     Order,
     OrderQueryArgs,
@@ -27,14 +27,14 @@ import {
     ProductsCategoryArgs,
     RemoveCartItemMutationArgs,
     RemoveCartItemResponse,
-    RemoveCustomerAddressMutationArgs,
+    RemoveCustomerAddressMutationArgs, RequestCustomerPasswordResetTokenMutationArgs, ResetCustomerPasswordMutationArgs,
     SetShippingMutationArgs,
     ShippingInformation,
     ShippingMethod,
     SignInMutationArgs,
     SignUpMutationArgs,
     SortOrderDirection,
-    UpdateCartItemMutationArgs,
+    UpdateCartItemMutationArgs, ValidatePasswordTokenQueryArgs,
 } from './generated/falcon-types';
 import {
     AddPaymentToOrder,
@@ -56,7 +56,7 @@ import {
     GetShippingMethods,
     LogIn,
     LogOut,
-    RemoveItem,
+    RemoveItem, RequestPasswordReset, ResetPassword,
     SearchProducts,
     SearchResultSortParameter,
     SetCustomerForOrder,
@@ -85,7 +85,7 @@ import {
     GET_SHIPPING_METHODS,
     LOG_IN,
     LOG_OUT,
-    REMOVE_ITEM,
+    REMOVE_ITEM, REQUEST_PASSWORD_RESET, RESET_PASSWORD,
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
@@ -116,6 +116,13 @@ let allCategoriesCache: Promise<GetCategoriesList.Items[]> | undefined;
 // Each time a ProductVariant is loaded, we need to add to
 // this map.
 const skuMap = new Map<string, string>();
+
+// The Falcon API does password reset in 2 stages, whereas Vendure combines token
+// validation & password reset into a single call. For this reason, we generate a
+// random temp password and set this to be the password on the validation step.
+// On the reset step we use this to change the password to whatever was chosen
+// by the user in the client app.
+const PASSWORD_RESET_TEMP_PASSWORD = Math.random().toString(36).substring(3);
 
 module.exports = class VendureApi extends VendureApiBase {
 
@@ -553,6 +560,32 @@ module.exports = class VendureApi extends VendureApiBase {
         const { input } = args;
         const { updateCustomerPassword } = await this.query<UpdatePassword.Mutation, UpdatePassword.Variables>(UPDATE_PASSWORD, {
             current: input.currentPassword,
+            new: input.password,
+        });
+        return updateCustomerPassword || false;
+    }
+
+    async requestCustomerPasswordResetToken(obj: any, args: RequestCustomerPasswordResetTokenMutationArgs): Promise<Maybe<boolean>> {
+        const { input } = args;
+        const { requestPasswordReset } = await this.query<RequestPasswordReset.Mutation, RequestPasswordReset.Variables>(REQUEST_PASSWORD_RESET, {
+            emailAddress: input.email,
+        });
+        return requestPasswordReset;
+    }
+
+    async validatePasswordToken(obj: any, args: ValidatePasswordTokenQueryArgs): Promise<Maybe<boolean>> {
+        const { token } = args;
+        const { resetPassword } = await this.query<ResetPassword.Mutation, ResetPassword.Variables>(RESET_PASSWORD, {
+            token,
+            password: PASSWORD_RESET_TEMP_PASSWORD,
+        });
+        return !!resetPassword;
+    }
+
+    async resetCustomerPassword(obj: any, args: ResetCustomerPasswordMutationArgs): Promise<Maybe<boolean>> {
+        const { input } = args;
+        const { updateCustomerPassword } = await this.query<UpdatePassword.Mutation, UpdatePassword.Variables>(UPDATE_PASSWORD, {
+            current: PASSWORD_RESET_TEMP_PASSWORD,
             new: input.password,
         });
         return updateCustomerPassword || false;

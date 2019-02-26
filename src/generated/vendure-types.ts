@@ -1285,6 +1285,43 @@ export namespace UpdatePassword {
   };
 }
 
+export namespace RequestPasswordReset {
+  export type Variables = {
+    emailAddress: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    requestPasswordReset: Maybe<boolean>;
+  };
+}
+
+export namespace ResetPassword {
+  export type Variables = {
+    token: string;
+    password: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    resetPassword: ResetPassword;
+  };
+
+  export type ResetPassword = {
+    __typename?: "LoginResult";
+
+    user: User;
+  };
+
+  export type User = {
+    __typename?: "CurrentUser";
+
+    id: string;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
