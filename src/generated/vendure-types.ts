@@ -1272,6 +1272,19 @@ export namespace DeleteAddress {
   };
 }
 
+export namespace UpdatePassword {
+  export type Variables = {
+    current: string;
+    new: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    updateCustomerPassword: Maybe<boolean>;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";

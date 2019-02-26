@@ -431,3 +431,9 @@ export const DELETE_ADDRESS = gql`
         deleteCustomerAddress(id: $id)
     }
 `;
+
+export const UPDATE_PASSWORD = gql`
+    mutation UpdatePassword($current: String!, $new: String!) {
+        updateCustomerPassword(currentPassword: $current, newPassword: $new)
+    }
+`;
