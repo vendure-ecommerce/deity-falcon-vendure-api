@@ -1,4 +1,3 @@
-import Logger from '@deity/falcon-logger';
 import { addResolveFunctionsToSchema } from 'graphql-tools';
 
 import {
@@ -41,7 +40,9 @@ import {
     AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
-    CreateAccount, CreateAddress,
+    CreateAccount,
+    CreateAddress,
+    DeleteAddress,
     FullOrder,
     GetActiveOrder,
     GetCategoriesList,
@@ -61,14 +62,18 @@ import {
     SetCustomerForOrder,
     SetShippingMethod,
     SortOrder,
-    TransitionOrderToState, UpdateAddress, UpdateCustomer,
+    TransitionOrderToState,
+    UpdateAddress,
+    UpdateCustomer,
 } from './generated/vendure-types';
 import {
     ACTIVE_ORDER,
     ADD_PAYMENT_TO_ORDER,
     ADD_TO_ORDER,
     ADJUST_ITEM_QTY,
-    CREATE_ACCOUNT, CREATE_ADDRESS,
+    CREATE_ACCOUNT,
+    CREATE_ADDRESS,
+    DELETE_ADDRESS,
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
@@ -84,7 +89,9 @@ import {
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
-    TRANSITION_ORDER_STATE, UPDATE_ADDRESS, UPDATE_CUSTOMER,
+    TRANSITION_ORDER_STATE,
+    UPDATE_ADDRESS,
+    UPDATE_CUSTOMER,
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
@@ -521,7 +528,11 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async removeCustomerAddress(obj: any, args: RemoveCustomerAddressMutationArgs): Promise<boolean> {
-        return this.throwNotImplementedError('removeCustomerAddress');
+        const { id } = args;
+        const { deleteCustomerAddress } = await this.query<DeleteAddress.Mutation, DeleteAddress.Variables>(DELETE_ADDRESS, {
+            id: id.toString(),
+        });
+        return deleteCustomerAddress;
     }
 
     async editCustomer(obj: any, args: EditCustomerMutationArgs): Promise<Customer | null> {

@@ -425,3 +425,9 @@ export const CREATE_ADDRESS = gql`
     }
     ${ADDRESS_FRAGMENT}
 `;
+
+export const DELETE_ADDRESS = gql`
+    mutation DeleteAddress($id: ID!) {
+        deleteCustomerAddress(id: $id)
+    }
+`;

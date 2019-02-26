@@ -1260,6 +1260,18 @@ export namespace CreateAddress {
   export type CreateCustomerAddress = Address.Fragment;
 }
 
+export namespace DeleteAddress {
+  export type Variables = {
+    id: string;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    deleteCustomerAddress: boolean;
+  };
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
