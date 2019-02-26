@@ -427,6 +427,11 @@ module.exports = class VendureApi extends VendureApiBase {
             options: {
                 take,
                 skip,
+                filter: {
+                    active: {
+                        eq: false,
+                    },
+                },
             },
         });
         if (!(activeCustomer && activeCustomer.orders)) {

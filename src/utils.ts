@@ -206,7 +206,7 @@ export function activeCustomerToCustomer(activeCustomer: GetCustomer.ActiveCusto
  * Coverts a Vendure Order entity to the Falcon format.
  */
 export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
-    const paymentMethodName = order.payments ? order.payments[0].method : null;
+    const paymentMethodName = (order.payments && order.payments.length) ? order.payments[0].method : null;
     return {
         createdAt: order.createdAt,
         incrementId: order.id,
