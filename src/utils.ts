@@ -252,6 +252,7 @@ export function vendureAddressToFalcon(address: OrderAddress.Fragment | GetCusto
 
     return {
         id,
+        company: address.company,
         firstname: fullName.split(' ')[0] || '',
         lastname: fullName.split(' ')[1] || '',
         street: [address.streetLine1, address.streetLine2],

@@ -235,6 +235,27 @@ export const ACTIVE_ORDER = gql`
     ${FULL_ORDER_FRAGMENT}
 `;
 
+export const ADDRESS_FRAGMENT = gql`
+    fragment Address on Address {
+        id
+        company
+        fullName
+        streetLine1
+        streetLine2
+        city
+        province
+        postalCode
+        phoneNumber
+        country {
+            id
+            code
+            name
+        }
+        defaultBillingAddress
+        defaultShippingAddress
+    }
+`;
+
 export const GET_CUSTOMER = gql`
     query GetCustomer {
         activeCustomer {
@@ -243,24 +264,11 @@ export const GET_CUSTOMER = gql`
             lastName
             emailAddress
             addresses {
-                id
-                fullName
-                streetLine1
-                streetLine2
-                city
-                province
-                postalCode
-                phoneNumber
-                country {
-                    id
-                    code
-                    name
-                }
-                defaultBillingAddress
-                defaultShippingAddress
+                ...Address
             }
         }
     }
+    ${ADDRESS_FRAGMENT}
 `;
 
 export const GET_COUNTRY_LIST = gql`
@@ -398,4 +406,13 @@ export const UPDATE_CUSTOMER = gql`
             emailAddress
         }
     }
+`;
+
+export const UPDATE_ADDRESS = gql`
+    mutation UpdateAddress($input: UpdateAddressInput!) {
+        updateCustomerAddress(input: $input) {
+            ...Address
+        }
+    }
+    ${ADDRESS_FRAGMENT}
 `;

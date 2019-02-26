@@ -953,41 +953,7 @@ export namespace GetCustomer {
     addresses: Maybe<Addresses[]>;
   };
 
-  export type Addresses = {
-    __typename?: "Address";
-
-    id: string;
-
-    fullName: Maybe<string>;
-
-    streetLine1: string;
-
-    streetLine2: Maybe<string>;
-
-    city: Maybe<string>;
-
-    province: Maybe<string>;
-
-    postalCode: Maybe<string>;
-
-    phoneNumber: Maybe<string>;
-
-    country: Country;
-
-    defaultBillingAddress: Maybe<boolean>;
-
-    defaultShippingAddress: Maybe<boolean>;
-  };
-
-  export type Country = {
-    __typename?: "Country";
-
-    id: string;
-
-    code: string;
-
-    name: string;
-  };
+  export type Addresses = Address.Fragment;
 }
 
 export namespace GetCountryList {
@@ -1266,6 +1232,20 @@ export namespace UpdateCustomer {
   };
 }
 
+export namespace UpdateAddress {
+  export type Variables = {
+    input: UpdateAddressInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    updateCustomerAddress: UpdateCustomerAddress;
+  };
+
+  export type UpdateCustomerAddress = Address.Fragment;
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";
@@ -1535,5 +1515,45 @@ export namespace FullOrder {
     firstName: string;
 
     lastName: string;
+  };
+}
+
+export namespace Address {
+  export type Fragment = {
+    __typename?: "Address";
+
+    id: string;
+
+    company: Maybe<string>;
+
+    fullName: Maybe<string>;
+
+    streetLine1: string;
+
+    streetLine2: Maybe<string>;
+
+    city: Maybe<string>;
+
+    province: Maybe<string>;
+
+    postalCode: Maybe<string>;
+
+    phoneNumber: Maybe<string>;
+
+    country: Country;
+
+    defaultBillingAddress: Maybe<boolean>;
+
+    defaultShippingAddress: Maybe<boolean>;
+  };
+
+  export type Country = {
+    __typename?: "Country";
+
+    id: string;
+
+    code: string;
+
+    name: string;
   };
 }

@@ -61,7 +61,7 @@ import {
     SetCustomerForOrder,
     SetShippingMethod,
     SortOrder,
-    TransitionOrderToState, UpdateCustomer,
+    TransitionOrderToState, UpdateAddress, UpdateCustomer,
 } from './generated/vendure-types';
 import {
     ACTIVE_ORDER,
@@ -84,7 +84,7 @@ import {
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
-    TRANSITION_ORDER_STATE, UPDATE_CUSTOMER,
+    TRANSITION_ORDER_STATE, UPDATE_ADDRESS, UPDATE_CUSTOMER,
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
@@ -484,7 +484,22 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async editAddress(obj: any, args: EditAddressMutationArgs): Promise<Address | null> {
-        return this.throwNotImplementedError('editAddress');
+        const { input } = args;
+        const { updateCustomerAddress } = await this.query<UpdateAddress.Mutation, UpdateAddress.Variables>(UPDATE_ADDRESS, {
+            input: {
+                id: input.id.toString(),
+                company: input.company,
+                countryCode: input.countryId,
+                defaultShippingAddress: input.defaultShipping,
+                defaultBillingAddress: input.defaultBilling,
+                fullName: `${input.firstname} ${input.lastname}`,
+                postalCode: input.postcode,
+                streetLine1: input.street ? input.street[0] : null,
+                streetLine2: input.street ? input.street[1] : null,
+                phoneNumber: input.telephone,
+            },
+        });
+        return vendureAddressToFalcon(updateCustomerAddress);
     }
 
     async addAddress(obj: any, args: AddAddressMutationArgs): Promise<Address | null> {
