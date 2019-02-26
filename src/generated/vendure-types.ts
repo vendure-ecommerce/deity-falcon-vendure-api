@@ -1246,6 +1246,20 @@ export namespace UpdateAddress {
   export type UpdateCustomerAddress = Address.Fragment;
 }
 
+export namespace CreateAddress {
+  export type Variables = {
+    input: CreateAddressInput;
+  };
+
+  export type Mutation = {
+    __typename?: "Mutation";
+
+    createCustomerAddress: CreateCustomerAddress;
+  };
+
+  export type CreateCustomerAddress = Address.Fragment;
+}
+
 export namespace ProductWithVariants {
   export type Fragment = {
     __typename?: "Product";

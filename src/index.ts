@@ -41,7 +41,7 @@ import {
     AddPaymentToOrder,
     AddToOrder,
     AdjustItemQty,
-    CreateAccount,
+    CreateAccount, CreateAddress,
     FullOrder,
     GetActiveOrder,
     GetCategoriesList,
@@ -68,7 +68,7 @@ import {
     ADD_PAYMENT_TO_ORDER,
     ADD_TO_ORDER,
     ADJUST_ITEM_QTY,
-    CREATE_ACCOUNT,
+    CREATE_ACCOUNT, CREATE_ADDRESS,
     GET_ALL_CATEGORIES,
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
@@ -503,7 +503,21 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async addAddress(obj: any, args: AddAddressMutationArgs): Promise<Address | null> {
-        return this.throwNotImplementedError('addAddress');
+        const { input } = args;
+        const { createCustomerAddress } = await this.query<CreateAddress.Mutation, CreateAddress.Variables>(CREATE_ADDRESS, {
+            input: {
+                company: input.company,
+                countryCode: input.countryId,
+                defaultShippingAddress: input.defaultShipping,
+                defaultBillingAddress: input.defaultBilling,
+                fullName: `${input.firstname} ${input.lastname}`,
+                postalCode: input.postcode,
+                streetLine1: input.street && input.street[0] || '',
+                streetLine2: input.street ? input.street[1] : null,
+                phoneNumber: input.telephone,
+            },
+        });
+        return vendureAddressToFalcon(createCustomerAddress);
     }
 
     async removeCustomerAddress(obj: any, args: RemoveCustomerAddressMutationArgs): Promise<boolean> {

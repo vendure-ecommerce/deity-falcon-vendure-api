@@ -416,3 +416,12 @@ export const UPDATE_ADDRESS = gql`
     }
     ${ADDRESS_FRAGMENT}
 `;
+
+export const CREATE_ADDRESS = gql`
+    mutation CreateAddress($input: CreateAddressInput!) {
+        createCustomerAddress(input: $input) {
+            ...Address
+        }
+    }
+    ${ADDRESS_FRAGMENT}
+`;
