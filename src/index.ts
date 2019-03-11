@@ -14,7 +14,8 @@ import {
     CountryList,
     Customer,
     EditAddressMutationArgs,
-    EditCustomerMutationArgs, Maybe,
+    EditCustomerMutationArgs,
+    Maybe,
     MenuItem,
     Order,
     OrderQueryArgs,
@@ -27,14 +28,17 @@ import {
     ProductsCategoryArgs,
     RemoveCartItemMutationArgs,
     RemoveCartItemResponse,
-    RemoveCustomerAddressMutationArgs, RequestCustomerPasswordResetTokenMutationArgs, ResetCustomerPasswordMutationArgs,
+    RemoveCustomerAddressMutationArgs,
+    RequestCustomerPasswordResetTokenMutationArgs,
+    ResetCustomerPasswordMutationArgs,
     SetShippingMutationArgs,
     ShippingInformation,
     ShippingMethod,
     SignInMutationArgs,
     SignUpMutationArgs,
     SortOrderDirection,
-    UpdateCartItemMutationArgs, ValidatePasswordTokenQueryArgs,
+    UpdateCartItemMutationArgs,
+    ValidatePasswordTokenQueryArgs,
 } from './generated/falcon-types';
 import {
     AddPaymentToOrder,
@@ -45,7 +49,8 @@ import {
     DeleteAddress,
     FullOrder,
     GetActiveOrder,
-    GetCategoriesList,
+    GetCollection,
+    GetCollectionList,
     GetCountryList,
     GetCustomer,
     GetCustomerOrders,
@@ -56,7 +61,9 @@ import {
     GetShippingMethods,
     LogIn,
     LogOut,
-    RemoveItem, RequestPasswordReset, ResetPassword,
+    RemoveItem,
+    RequestPasswordReset,
+    ResetPassword,
     SearchProducts,
     SearchResultSortParameter,
     SetCustomerForOrder,
@@ -64,7 +71,8 @@ import {
     SortOrder,
     TransitionOrderToState,
     UpdateAddress,
-    UpdateCustomer, UpdatePassword,
+    UpdateCustomer,
+    UpdatePassword,
 } from './generated/vendure-types';
 import {
     ACTIVE_ORDER,
@@ -74,7 +82,8 @@ import {
     CREATE_ACCOUNT,
     CREATE_ADDRESS,
     DELETE_ADDRESS,
-    GET_ALL_CATEGORIES,
+    GET_ALL_COLLECTIONS,
+    GET_COLLECTION,
     GET_COUNTRY_LIST,
     GET_CUSTOMER,
     GET_ORDER,
@@ -85,13 +94,16 @@ import {
     GET_SHIPPING_METHODS,
     LOG_IN,
     LOG_OUT,
-    REMOVE_ITEM, REQUEST_PASSWORD_RESET, RESET_PASSWORD,
+    REMOVE_ITEM,
+    REQUEST_PASSWORD_RESET,
+    RESET_PASSWORD,
     SEARCH_PRODUCTS,
     SET_CUSTOMER_FOR_ORDER,
     SET_SHIPPING_METHOD,
     TRANSITION_ORDER_STATE,
     UPDATE_ADDRESS,
-    UPDATE_CUSTOMER, UPDATE_PASSWORD,
+    UPDATE_CUSTOMER,
+    UPDATE_PASSWORD,
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
@@ -107,9 +119,6 @@ import {
     vendureProductToProduct,
 } from './utils';
 import { SessionData, VendureApiBase, VendureApiParams } from './vendure-api-base';
-
-// We cache the list of all categories to avoid having to make a request each time
-let allCategoriesCache: Promise<GetCategoriesList.Items[]> | undefined;
 
 // Falcon specifies products by sku, whereas Vendure
 // deals with ids. Therefore we need to map between them.
@@ -155,34 +164,27 @@ module.exports = class VendureApi extends VendureApiBase {
     }
 
     async menu(): Promise<MenuItem[]> {
-        const allCategories = await this.getAllCategories();
+        const allCategories = await this.getAllCollections();
         return allCategories
             .filter(category => category.parent.name === '__root_category__')
             .map(categoryToMenuItem(allCategories));
     }
 
     async category(obj: any, args: CategoryQueryArgs): Promise<Category> {
-        const allCategories = await this.getAllCategories();
-        const matchingCategory = allCategories.find(c => c.id === args.id);
+        const { collection } = await this.query<GetCollection.Query, GetCollection.Variables>(GET_COLLECTION, {
+            id: args.id,
+        });
         return {
-            id: matchingCategory ? matchingCategory.id : '',
-            name: matchingCategory ? matchingCategory.name : '',
-            children: matchingCategory ? matchingCategory.children : [],
-            description: matchingCategory ? matchingCategory.description : '',
+            id: collection ? collection.id : '',
+            name: collection ? collection.name : '',
+            children: collection ? collection.children : [],
+            description: collection ? collection.description : '',
             breadcrumbs: [],
         };
     }
 
     async categoryProducts(obj: Category, args: ProductsCategoryArgs): Promise<ProductList> {
         const { pagination, filters, sort } = args;
-
-        const allCategories = await this.getAllCategories();
-        const matchingCategory = allCategories.find(c => c.id === obj.id);
-        let facetValueIds: string[] = [];
-        if (matchingCategory) {
-            facetValueIds = matchingCategory.facetValues.map(fv => fv.id)
-                .concat(matchingCategory.ancestorFacetValues.map(fv => fv.id));
-        }
 
         const currentPage = (pagination && pagination.page) || 1;
         const perPage = (pagination && pagination.perPage) || 20;
@@ -199,7 +201,7 @@ module.exports = class VendureApi extends VendureApiBase {
         const response = await this.query<SearchProducts.Query, SearchProducts.Variables>(SEARCH_PRODUCTS, {
             input: {
                 groupByProduct: false,
-                facetIds: facetValueIds,
+                collectionId: obj.id,
                 take,
                 skip,
                 sort: vendureSort,
@@ -607,16 +609,12 @@ module.exports = class VendureApi extends VendureApiBase {
     /**
      * Retrieve all available ProductCategories from the Vendure server and cache them.
      */
-    private async getAllCategories(): Promise<GetCategoriesList.Items[]> {
-        if (allCategoriesCache) {
-            return allCategoriesCache;
-        }
-        allCategoriesCache = this.query<GetCategoriesList.Query, GetCategoriesList.Variables>(GET_ALL_CATEGORIES, {
+    private async getAllCollections(): Promise<GetCollectionList.Items[]> {
+        return this.query<GetCollectionList.Query, GetCollectionList.Variables>(GET_ALL_COLLECTIONS, {
             options: {
                 take: 999,
             },
-        }).then(res => res.productCategories.items);
-        return allCategoriesCache;
+        }).then(res => res.collections.items);
     }
 
     /**

@@ -69,9 +69,9 @@ export const GET_PRODUCT = gql`
     }
 ${PRODUCT_FRAGMENT}`;
 
-export const GET_ALL_CATEGORIES = gql`
-    query GetCategoriesList($options: ProductCategoryListOptions) {
-        productCategories(options: $options) {
+export const GET_ALL_COLLECTIONS = gql`
+    query GetCollectionList($options: CollectionListOptions) {
+        collections(options: $options) {
             items {
                 id
                 name
@@ -80,20 +80,26 @@ export const GET_ALL_CATEGORIES = gql`
                     name
                 }
                 description
-                ancestorFacetValues {
-                    id
-                    name
-                }
-                facetValues {
-                    id
-                    name
-                }
                 parent {
                     id
                     name
                 }
             }
             totalItems
+        }
+    }
+`;
+
+export const GET_COLLECTION = gql`
+    query GetCollection($id: ID!) {
+        collection(id: $id) {
+            id
+            name
+            description
+            children {
+                id
+                name
+            }
         }
     }
 `;

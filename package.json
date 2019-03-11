@@ -1,6 +1,6 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "repository": {
@@ -25,11 +25,11 @@
     "concurrently": "^4.1.0",
     "config": "^3.0.1",
     "cross-env": "^5.2.0",
-    "graphql-code-generator": "^0.16.1",
-    "graphql-codegen-add": "^0.16.1",
-    "graphql-codegen-typescript-client": "^0.16.1",
-    "graphql-codegen-typescript-common": "0.16.1",
-    "graphql-codegen-typescript-server": "^0.16.1",
+    "graphql-code-generator": "^0.18.0",
+    "graphql-codegen-add": "^0.18.0",
+    "graphql-codegen-typescript-client": "^0.18.0",
+    "graphql-codegen-typescript-common": "^0.18.0",
+    "graphql-codegen-typescript-server": "^0.18.0",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3"
   },

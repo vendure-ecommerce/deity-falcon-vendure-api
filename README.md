@@ -2,13 +2,9 @@
 
 This is an experimental api provider for [DEITY Falcon](https://github.com/deity-io/falcon). The goal is to allow Falcon to be used as a storefront for [Vendure](https://www.vendure.io/).
 
-## Current Status
-
-Most of the basic functions are working - listing products, adding to cart, checking out etc. Modifying customer details is not yet supported.
-
 ## Installation
 
-1. Set up a Vendure server by following the [getting started guide](https://www.vendure.io/docs/getting-started/). Requires v0.1.0-alpha.6 or above.
+1. Set up a Vendure server by following the [getting started guide](https://www.vendure.io/docs/getting-started/). Requires **v0.1.0-alpha.14** or above.
 2. In the Vendure config, set `authOptions.requireVerification` to `false` so that customer accounts can be created without the need for the email verification step.
 3. In the Vendure config, set the port to `5000` to avoid conflict with the default Falcon client server.
 3. In your Falcon Server project, install `@vendure/falcon-vendure-api`.

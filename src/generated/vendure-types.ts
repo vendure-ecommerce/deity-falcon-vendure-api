@@ -103,17 +103,17 @@ export interface NumberRange {
   end: number;
 }
 
-export interface ProductCategoryListOptions {
+export interface CollectionListOptions {
   skip?: Maybe<number>;
 
   take?: Maybe<number>;
 
-  sort?: Maybe<ProductCategorySortParameter>;
+  sort?: Maybe<CollectionSortParameter>;
 
-  filter?: Maybe<ProductCategoryFilterParameter>;
+  filter?: Maybe<CollectionFilterParameter>;
 }
 
-export interface ProductCategorySortParameter {
+export interface CollectionSortParameter {
   id?: Maybe<SortOrder>;
 
   createdAt?: Maybe<SortOrder>;
@@ -127,7 +127,7 @@ export interface ProductCategorySortParameter {
   description?: Maybe<SortOrder>;
 }
 
-export interface ProductCategoryFilterParameter {
+export interface CollectionFilterParameter {
   createdAt?: Maybe<DateOperators>;
 
   updatedAt?: Maybe<DateOperators>;
@@ -139,6 +139,54 @@ export interface ProductCategoryFilterParameter {
   position?: Maybe<NumberOperators>;
 
   description?: Maybe<StringOperators>;
+}
+
+export interface ProductVariantListOptions {
+  skip?: Maybe<number>;
+
+  take?: Maybe<number>;
+
+  sort?: Maybe<ProductVariantSortParameter>;
+
+  filter?: Maybe<ProductVariantFilterParameter>;
+}
+
+export interface ProductVariantSortParameter {
+  id?: Maybe<SortOrder>;
+
+  productId?: Maybe<SortOrder>;
+
+  createdAt?: Maybe<SortOrder>;
+
+  updatedAt?: Maybe<SortOrder>;
+
+  sku?: Maybe<SortOrder>;
+
+  name?: Maybe<SortOrder>;
+
+  price?: Maybe<SortOrder>;
+
+  priceWithTax?: Maybe<SortOrder>;
+}
+
+export interface ProductVariantFilterParameter {
+  createdAt?: Maybe<DateOperators>;
+
+  updatedAt?: Maybe<DateOperators>;
+
+  languageCode?: Maybe<StringOperators>;
+
+  sku?: Maybe<StringOperators>;
+
+  name?: Maybe<StringOperators>;
+
+  price?: Maybe<NumberOperators>;
+
+  currencyCode?: Maybe<StringOperators>;
+
+  priceIncludesTax?: Maybe<BooleanOperators>;
+
+  priceWithTax?: Maybe<NumberOperators>;
 }
 
 export interface ProductListOptions {
@@ -183,6 +231,8 @@ export interface SearchInput {
   term?: Maybe<string>;
 
   facetIds?: Maybe<string[]>;
+
+  collectionId?: Maybe<string>;
 
   groupByProduct?: Maybe<boolean>;
 
@@ -299,16 +349,18 @@ export interface UpdateAddressInput {
   customFields?: Maybe<Json>;
 }
 
-export interface AdjustmentOperationInput {
-  code: string;
-
-  arguments: ConfigArgInput[];
-}
-
 export interface ConfigArgInput {
   name: string;
 
-  value: string;
+  type: ConfigArgType;
+
+  value?: Maybe<string>;
+}
+
+export interface ConfigurableOperationInput {
+  code: string;
+
+  arguments: ConfigArgInput[];
 }
 /** ISO 639-1 language code */
 export enum LanguageCode {
@@ -678,6 +730,16 @@ export enum AdjustmentType {
   PROMOTION_REFUND = "PROMOTION_REFUND",
   SHIPPING_REFUND = "SHIPPING_REFUND"
 }
+/** Certain entities allow arbitrary configuration arguments to be specified which can then be set in the admin-ui and used in the business logic of the app. These are the valid data types of such arguments. The data type influences: 1. How the argument form field is rendered in the admin-ui 2. The JavaScript type into which the value is coerced before being passed to the business logic. */
+export enum ConfigArgType {
+  PERCENTAGE = "PERCENTAGE",
+  MONEY = "MONEY",
+  INT = "INT",
+  STRING = "STRING",
+  DATETIME = "DATETIME",
+  BOOLEAN = "BOOLEAN",
+  FACET_VALUE_IDS = "FACET_VALUE_IDS"
+}
 /** Permissions for administrators and customers */
 export enum Permission {
   Authenticated = "Authenticated",
@@ -760,19 +822,19 @@ export namespace GetProduct {
   export type Product = ProductWithVariants.Fragment;
 }
 
-export namespace GetCategoriesList {
+export namespace GetCollectionList {
   export type Variables = {
-    options?: Maybe<ProductCategoryListOptions>;
+    options?: Maybe<CollectionListOptions>;
   };
 
   export type Query = {
     __typename?: "Query";
 
-    productCategories: ProductCategories;
+    collections: Collections;
   };
 
-  export type ProductCategories = {
-    __typename?: "ProductCategoryList";
+  export type Collections = {
+    __typename?: "CollectionList";
 
     items: Items[];
 
@@ -780,7 +842,7 @@ export namespace GetCategoriesList {
   };
 
   export type Items = {
-    __typename?: "ProductCategory";
+    __typename?: "Collection";
 
     id: string;
 
@@ -790,31 +852,11 @@ export namespace GetCategoriesList {
 
     description: string;
 
-    ancestorFacetValues: AncestorFacetValues[];
-
-    facetValues: FacetValues[];
-
     parent: Parent;
   };
 
   export type Children = {
-    __typename?: "ProductCategory";
-
-    id: string;
-
-    name: string;
-  };
-
-  export type AncestorFacetValues = {
-    __typename?: "FacetValue";
-
-    id: string;
-
-    name: string;
-  };
-
-  export type FacetValues = {
-    __typename?: "FacetValue";
+    __typename?: "Collection";
 
     id: string;
 
@@ -822,7 +864,39 @@ export namespace GetCategoriesList {
   };
 
   export type Parent = {
-    __typename?: "ProductCategory";
+    __typename?: "Collection";
+
+    id: string;
+
+    name: string;
+  };
+}
+
+export namespace GetCollection {
+  export type Variables = {
+    id: string;
+  };
+
+  export type Query = {
+    __typename?: "Query";
+
+    collection: Maybe<Collection>;
+  };
+
+  export type Collection = {
+    __typename?: "Collection";
+
+    id: string;
+
+    name: string;
+
+    description: string;
+
+    children: Maybe<Children[]>;
+  };
+
+  export type Children = {
+    __typename?: "Collection";
 
     id: string;
 
