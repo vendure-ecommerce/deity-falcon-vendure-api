@@ -1,6 +1,6 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "repository": {
@@ -44,9 +44,10 @@
     "typescript": "^3.3.3"
   },
   "scripts": {
-    "start:dev": "concurrently -n tsc,gql-gen,server -c green,cyan,blue \"tsc -w\"  \"gql-gen --config codegen.yml --watch\"",
-    "server": "cd server && nodemon --watch ../dist index.js",
-    "generate-types": "gql-gen --config codegen.yml"
+    "start:dev": "concurrently -n tsc,gql-gen -c green,cyan \"tsc -w\"  \"gql-gen --config codegen.yml --watch\"",
+    "server": "cd server && nodemon --watch index.js",
+    "generate-types": "gql-gen --config codegen.yml",
+    "build": "tsc"
   },
   "resolutions": {
     "apollo-env": "0.3.1"

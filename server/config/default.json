@@ -8,10 +8,10 @@
     "vendure-api": {
       "package": "../../deity-falcon-vendure-api",
       "config": {
-        "host": "localhost",
-        "port": 5000,
+        "host": "demo.vendure.io",
+        "port": 443,
         "apiPath": "shop-api",
-        "protocol": "http"
+        "protocol": "https"
       }
     }
   },
