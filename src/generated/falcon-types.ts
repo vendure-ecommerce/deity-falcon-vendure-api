@@ -17,11 +17,11 @@ export interface SortOrderInput {
 }
 
 export interface FilterInput {
-  operator?: Maybe<FilterOperator>;
-
   field?: Maybe<string>;
 
   value?: Maybe<(Maybe<string>)[]>;
+
+  operator?: Maybe<FilterOperator>;
 }
 
 export interface ShopPageQuery {
@@ -237,6 +237,8 @@ export interface PlaceOrderInput {
 
 export interface PaymentMethodInput {
   method?: Maybe<string>;
+  /** Selected payment-specific payload (like encrypted credit card info) */
+  additionalData?: Maybe<Json>;
 }
 /** Sort order direction enumeration, defines direction of sorting */
 export enum SortOrderDirection {
@@ -255,6 +257,18 @@ export enum FilterOperator {
   nin = "nin",
   range = "range"
 }
+
+export enum AggregationType {
+  single = "single",
+  multiple = "multiple",
+  range = "range"
+}
+
+export type Json = any;
+
+// ====================================================
+// Scalars
+// ====================================================
 
 // ====================================================
 // Types
@@ -508,19 +522,23 @@ export interface ProductSeo {
 }
 
 export interface Aggregation {
-  key?: Maybe<string>;
-
-  name?: Maybe<string>;
-
+  /** field name to aggregate values on */
+  field?: Maybe<string>;
+  /** Agregation type */
+  type?: Maybe<AggregationType>;
+  /** Aggregated items */
   buckets?: Maybe<(Maybe<AggregationBucket>)[]>;
+  /** Title */
+  title?: Maybe<string>;
 }
 
 export interface AggregationBucket {
+  /** Discriminator value */
   value?: Maybe<string>;
-
-  name?: Maybe<string>;
-
+  /** Items count */
   count?: Maybe<number>;
+  /** Title */
+  title?: Maybe<string>;
 }
 
 /** Pagination type (used for listing the response data) */
@@ -541,7 +559,7 @@ export interface Pagination {
 
 export interface Cart {
   active?: Maybe<boolean>;
-  /** state wheather products will be shipped or not */
+  /** State wheather products will be shipped or not */
   virtual?: Maybe<boolean>;
 
   items?: Maybe<(Maybe<CartItem>)[]>;
@@ -885,16 +903,36 @@ export interface ShippingInformation {
 }
 
 export interface PaymentMethod {
+  /** Internal Payment method code (like "paypal_express") */
   code?: Maybe<string>;
-
+  /** Translated Payment method title (like "PayPal Express Checkout") */
   title?: Maybe<string>;
+  /** Configuration object for the specific Payment method */
+  config?: Maybe<Json>;
 }
 
-export interface PlaceOrderResult {
-  /** increment order id */
-  orderId?: Maybe<number>;
+/** Successful placeOrder result */
+export interface PlaceOrderSuccessfulResult {
+  /** Increment order id */
+  orderId?: Maybe<string>;
   /** like 0000001 - used for reference by customer */
   orderRealId?: Maybe<string>;
+}
+
+/** 3D-secure placeOrder result */
+export interface PlaceOrder3dSecureResult {
+  /** Issuer URL (target URL) for redirection */
+  url: string;
+  /** HTTP method (GET or POST) */
+  method?: Maybe<string>;
+  /** List of fields to pass to the issuer page */
+  fields?: Maybe<(Maybe<PlaceOrder3dSecureField>)[]>;
+}
+
+export interface PlaceOrder3dSecureField {
+  name: string;
+
+  value?: Maybe<string>;
 }
 
 export interface Subscription {
@@ -1018,3 +1056,12 @@ export interface SetShippingMutationArgs {
 export interface PlaceOrderMutationArgs {
   input: PlaceOrderInput;
 }
+
+// ====================================================
+// Unions
+// ====================================================
+
+/** Mixed result for "Mutation.placeOrder" for */
+export type PlaceOrderResult =
+  | PlaceOrderSuccessfulResult
+  | PlaceOrder3dSecureResult;

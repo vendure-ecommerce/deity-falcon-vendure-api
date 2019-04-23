@@ -316,8 +316,6 @@ export interface UpdateCustomerInput {
 
   phoneNumber?: Maybe<string>;
 
-  emailAddress?: Maybe<string>;
-
   customFields?: Maybe<Json>;
 }
 
@@ -549,17 +547,6 @@ export enum LanguageCode {
   za = "za",
   zu = "zu"
 }
-
-export enum SortOrder {
-  ASC = "ASC",
-  DESC = "DESC"
-}
-
-export enum AssetType {
-  IMAGE = "IMAGE",
-  VIDEO = "VIDEO",
-  BINARY = "BINARY"
-}
 /** ISO 4217 currency code */
 export enum CurrencyCode {
   AED = "AED",
@@ -721,6 +708,17 @@ export enum CurrencyCode {
   ZWL = "ZWL"
 }
 
+export enum SortOrder {
+  ASC = "ASC",
+  DESC = "DESC"
+}
+
+export enum AssetType {
+  IMAGE = "IMAGE",
+  VIDEO = "VIDEO",
+  BINARY = "BINARY"
+}
+
 export enum AdjustmentType {
   TAX = "TAX",
   PROMOTION = "PROMOTION",
@@ -852,7 +850,7 @@ export namespace GetCollectionList {
 
     description: string;
 
-    parent: Parent;
+    parent: Maybe<Parent>;
   };
 
   export type Children = {
@@ -940,11 +938,27 @@ export namespace SearchProducts {
 
     slug: string;
 
-    price: number;
+    price: Price;
 
     currencyCode: CurrencyCode;
 
     productName: string;
+  };
+
+  export type Price = PriceRangeInlineFragment | SinglePriceInlineFragment;
+
+  export type PriceRangeInlineFragment = {
+    __typename?: "PriceRange";
+
+    min: number;
+
+    max: number;
+  };
+
+  export type SinglePriceInlineFragment = {
+    __typename?: "SinglePrice";
+
+    value: number;
   };
 }
 

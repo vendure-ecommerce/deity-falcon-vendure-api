@@ -8,8 +8,8 @@ import {
     FetchUrlResult,
     GraphQLContext,
 } from '@deity/falcon-server-env';
-import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/src/models/ApiDataSource';
-import { ConfigurableConstructorParams } from '@deity/falcon-server-env/src/types';
+import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/dist/models/ApiDataSource';
+import { ConfigurableConstructorParams } from '@deity/falcon-server-env/dist/types';
 import { Request } from 'apollo-server-env';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
 

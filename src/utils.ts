@@ -14,7 +14,7 @@ import {
     CreateAddressInput,
     FullOrder,
     GetActiveOrder,
-    GetCategoriesList,
+    GetCollectionList,
     GetCustomer,
     GetShippingMethods,
     OrderAddress,
@@ -22,15 +22,17 @@ import {
     ProductWithVariants,
     SearchProducts,
 } from './generated/vendure-types';
+import PriceRangeInlineFragment = SearchProducts.PriceRangeInlineFragment;
+import SinglePriceInlineFragment = SearchProducts.SinglePriceInlineFragment;
 
 /**
  * Converts a Category to a Falcon MenuItem, recursily nesting children.
  */
-export function categoryToMenuItem(allCategories: GetCategoriesList.Items[]) {
-    return (category: GetCategoriesList.Items): MenuItem => ({
+export function categoryToMenuItem(allCategories: GetCollectionList.Items[]) {
+    return (category: GetCollectionList.Items): MenuItem => ({
         id: category.id,
         name: category.name,
-        children: allCategories.filter(c => c.parent.id === category.id).map(categoryToMenuItem(allCategories)),
+        children: allCategories.filter(c => c.parent && c.parent.id === category.id).map(categoryToMenuItem(allCategories)),
         urlPath: `/category/${category.id}-${category.name}`,
     });
 }
@@ -86,10 +88,17 @@ export function searchResultToProduct(searchResult: SearchProducts.Items): Produ
         sku: searchResult.sku,
         id: searchResult.productVariantId,
         name: searchResult.productVariantName,
-        price: formatPrice(searchResult.price, 'string'),
+        price: formatPrice(extractSearchResultPrice(searchResult.price), 'string'),
         thumbnail: searchResult.productPreview + '?w=300&h=300&mode=crop',
         urlPath: formatProductUrl(searchResult.productId, searchResult.productVariantId, searchResult.slug),
     };
+}
+
+function extractSearchResultPrice(price: PriceRangeInlineFragment | SinglePriceInlineFragment): number {
+    function isPriceRange(p: PriceRangeInlineFragment | SinglePriceInlineFragment): p is PriceRangeInlineFragment {
+        return (p as any).min !== undefined;
+    }
+    return isPriceRange(price) ? price.min : price.value;
 }
 
 /**

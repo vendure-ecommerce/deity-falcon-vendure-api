@@ -155,7 +155,9 @@ module.exports = class VendureApi extends VendureApiBase {
     async fetchBackendConfig(): Promise<any> {
         // TODO: fetch this data from the backend
         this.session.currency = 'USD';
-        this.context.session.locale = 'en-US';
+        if (this.context.session) {
+            this.context.session.locale = 'en-US';
+        }
 
         return {
             locales: ['en-US'],
@@ -166,7 +168,7 @@ module.exports = class VendureApi extends VendureApiBase {
     async menu(): Promise<MenuItem[]> {
         const allCategories = await this.getAllCollections();
         return allCategories
-            .filter(category => category.parent.name === '__root_category__')
+            .filter(category => category.parent && category.parent.name === '__root_category__')
             .map(categoryToMenuItem(allCategories));
     }
 
@@ -381,7 +383,7 @@ module.exports = class VendureApi extends VendureApiBase {
         }
         session.lastOrderCode = addPaymentToOrder.code;
         return {
-            orderId: +addPaymentToOrder.id,
+            orderId: addPaymentToOrder.id,
             orderRealId: addPaymentToOrder.code,
         };
     }
@@ -550,7 +552,6 @@ module.exports = class VendureApi extends VendureApiBase {
             input: {
                 firstName: input.firstname,
                 lastName: input.lastname,
-                emailAddress: input.email,
             },
         });
         return {

@@ -115,7 +115,15 @@ export const SEARCH_PRODUCTS = gql`
                 productPreview
                 sku
                 slug
-                price
+                price {
+                    ...on PriceRange {
+                        min
+                        max
+                    }
+                    ...on SinglePrice {
+                        value
+                    }
+                }
                 currencyCode
                 productName
             }

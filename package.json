@@ -8,28 +8,38 @@
     "url": "https://github.com/vendure-ecommerce/deity-falcon-vendure-api/"
   },
   "author": "Michael Bromley",
-  "keywords": ["deity", "falcon", "vendure", "api", "ecommerce"],
+  "keywords": [
+    "deity",
+    "falcon",
+    "vendure",
+    "api",
+    "ecommerce"
+  ],
   "license": "OSL-3.0",
   "private": false,
   "dependencies": {
     "graphql-tag": "^2.10.1"
   },
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "devDependencies": {
-    "@deity/falcon-server": "^0.1.2",
-    "@deity/falcon-shop-extension": "^0.3.0",
+    "@deity/falcon-server": "^0.2.1",
+    "@deity/falcon-shop-extension": "^0.4.1",
     "@types/eventemitter2": "^4.1.0",
-    "@types/graphql": "^14.0.7",
-    "@types/koa-router": "^7.0.39",
-    "@types/node": "^11.9.3",
+    "@types/graphql": "^14.2.0",
+    "@types/koa-router": "^7.0.40",
+    "@types/node": "^11.13.7",
+    "@types/qs": "^6.5.3",
     "concurrently": "^4.1.0",
-    "config": "^3.0.1",
+    "config": "^3.1.0",
     "cross-env": "^5.2.0",
     "graphql-code-generator": "^0.18.0",
     "graphql-codegen-add": "^0.18.0",
     "graphql-codegen-typescript-client": "^0.18.0",
     "graphql-codegen-typescript-common": "^0.18.0",
     "graphql-codegen-typescript-server": "^0.18.0",
+    "nodemon": "^1.18.11",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3"
   },
