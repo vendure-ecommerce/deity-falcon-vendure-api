@@ -168,7 +168,7 @@ module.exports = class VendureApi extends VendureApiBase {
     async menu(): Promise<MenuItem[]> {
         const allCategories = await this.getAllCollections();
         return allCategories
-            .filter(category => category.parent && category.parent.name === '__root_category__')
+            .filter(category => category.parent && category.parent.name === '__root_collection__')
             .map(categoryToMenuItem(allCategories));
     }
 
