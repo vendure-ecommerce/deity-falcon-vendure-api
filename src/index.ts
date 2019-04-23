@@ -294,6 +294,7 @@ module.exports = class VendureApi extends VendureApiBase {
         if (!order) {
             return {
                 items: [],
+                totals: [],
             };
         }
         this.session.order = order;
@@ -375,7 +376,9 @@ module.exports = class VendureApi extends VendureApiBase {
         const { addPaymentToOrder } = await this.query<AddPaymentToOrder.Mutation, AddPaymentToOrder.Variables>(ADD_PAYMENT_TO_ORDER, {
             input: {
                 method: 'example-payment-provider',
-                metadata: {},
+                metadata: {
+                    storefront: 'DEITY Falcon',
+                },
             },
         });
         if (!addPaymentToOrder) {
