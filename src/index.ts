@@ -107,7 +107,7 @@ import {
 } from './gql-documents';
 import {
     activeCustomerToCustomer,
-    categoryToMenuItem,
+    categoryToMenuItem, facetValuesToAggregations,
     falconAddressInputToVendure,
     orderToCart,
     orderToTotals,
@@ -200,6 +200,17 @@ module.exports = class VendureApi extends VendureApiBase {
             vendureSort.price = sort.direction === SortOrderDirection.asc ? SortOrder.ASC : SortOrder.DESC;
         }
 
+        const facetIds: string[] = [];
+        for (const filter of args.filters || []) {
+            if (filter && filter.value) {
+                filter.value.forEach(v => {
+                    if (v) {
+                        facetIds.push(v);
+                    }
+                });
+            }
+        }
+
         const response = await this.query<SearchProducts.Query, SearchProducts.Variables>(SEARCH_PRODUCTS, {
             input: {
                 groupByProduct: false,
@@ -207,12 +218,13 @@ module.exports = class VendureApi extends VendureApiBase {
                 take,
                 skip,
                 sort: vendureSort,
+                facetIds,
             },
         });
 
         return {
             items: response.search.items.map(i => searchResultToProduct(i)),
-            aggregations: [],
+            aggregations: facetValuesToAggregations(response.search.facetValues, response.search.totalItems, facetIds),
             pagination: {
                 totalItems: response.search.totalItems,
                 currentPage,
@@ -221,7 +233,6 @@ module.exports = class VendureApi extends VendureApiBase {
                 totalPages: Math.floor(response.search.totalItems / perPage),
             },
         };
-
     }
 
     async product(obj: any, args: ProductQueryArgs) {

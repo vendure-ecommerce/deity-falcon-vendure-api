@@ -28,6 +28,8 @@ export interface OrderSortParameter {
 
   shipping?: Maybe<SortOrder>;
 
+  shippingWithTax?: Maybe<SortOrder>;
+
   totalBeforeTax?: Maybe<SortOrder>;
 
   total?: Maybe<SortOrder>;
@@ -51,6 +53,8 @@ export interface OrderFilterParameter {
   currencyCode?: Maybe<StringOperators>;
 
   shipping?: Maybe<NumberOperators>;
+
+  shippingWithTax?: Maybe<NumberOperators>;
 
   totalBeforeTax?: Maybe<NumberOperators>;
 
@@ -736,7 +740,8 @@ export enum ConfigArgType {
   STRING = "STRING",
   DATETIME = "DATETIME",
   BOOLEAN = "BOOLEAN",
-  FACET_VALUE_IDS = "FACET_VALUE_IDS"
+  FACET_VALUE_IDS = "FACET_VALUE_IDS",
+  STRING_OPERATOR = "STRING_OPERATOR"
 }
 /** Permissions for administrators and customers */
 export enum Permission {
@@ -764,6 +769,13 @@ export enum Permission {
   ReadSettings = "ReadSettings",
   UpdateSettings = "UpdateSettings",
   DeleteSettings = "DeleteSettings"
+}
+
+export enum StockMovementType {
+  ADJUSTMENT = "ADJUSTMENT",
+  SALE = "SALE",
+  CANCELLATION = "CANCELLATION",
+  RETURN = "RETURN"
 }
 
 export enum DeletionResult {
@@ -919,6 +931,8 @@ export namespace SearchProducts {
     items: Items[];
 
     totalItems: number;
+
+    facetValues: FacetValues[];
   };
 
   export type Items = {
@@ -959,6 +973,34 @@ export namespace SearchProducts {
     __typename?: "SinglePrice";
 
     value: number;
+  };
+
+  export type FacetValues = {
+    __typename?: "FacetValueResult";
+
+    count: number;
+
+    facetValue: FacetValue;
+  };
+
+  export type FacetValue = {
+    __typename?: "FacetValue";
+
+    id: string;
+
+    name: string;
+
+    facet: Facet;
+  };
+
+  export type Facet = {
+    __typename?: "Facet";
+
+    id: string;
+
+    code: string;
+
+    name: string;
   };
 }
 

@@ -8,7 +8,8 @@ This package has been tested against:
 
 * @deity/falcon-server v0.2.1
 * @deity/falcon-shop-extension v0.4.1
-* @vendure/core v0.1.0-alpha.18
+* @deity/falcon-client v0.4.1
+* @vendure/core v0.1.2-beta.2
 
 Since both DEITY Falcon and Vendure are under active early development, expect some instability if attempting to use newer versions than the above.
 
@@ -82,9 +83,8 @@ The simplest way to test out the Falcon Vendure API is to run it against the onl
 2. Run `yarn start:dev` which will start up:
    * **graphql-code-generator** (to auto generate TypeScript types for the Vendure & Falcon schemas) in watch mode.
    * **tsc** (the TypeScript compiler) in watch mode.
-   * **server** which runs an instance of the Deity Falcon server configured to use this Vendure API provider. It runs with nodemon so will automatically restart on changes to the `dist` directory contents.
 
 ## Testing
 
-1. Assumes a Vendure server running on port 5000 with the GraphQL api set to "api".
-2. Start the Falcon client (client is not included in this repo to keep things minimal)
+1. Start the Falcon client (client is not included in this repo to keep things minimal). To install the client locally, see https://falcon.deity.io/docs/getting-started/installation
+2. Run `yarn server` to run this server locally. The client should then connect to it when opening it in the browser at http://localhost:3000

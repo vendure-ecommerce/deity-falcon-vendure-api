@@ -127,7 +127,19 @@ export const SEARCH_PRODUCTS = gql`
                 currencyCode
                 productName
             }
-            totalItems
+            totalItems,
+            facetValues {
+                count
+                facetValue {
+                    id
+                    name
+                    facet {
+                        id
+                        code
+                        name
+                    }
+                }
+            }
         }
     }
 `;

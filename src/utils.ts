@@ -1,10 +1,10 @@
 import {
     Address,
-    AddressInput,
+    AddressInput, Aggregation, AggregationBucket, AggregationType,
     Cart,
     CartItemPayload,
     CartTotal,
-    Customer,
+    Customer, Maybe,
     MenuItem,
     Order,
     Product,
@@ -24,6 +24,17 @@ import {
 } from './generated/vendure-types';
 import PriceRangeInlineFragment = SearchProducts.PriceRangeInlineFragment;
 import SinglePriceInlineFragment = SearchProducts.SinglePriceInlineFragment;
+
+export interface FacetWithValues {
+    id: string;
+    name: string;
+    code: string;
+    values: Array<{
+        id: string;
+        name: string;
+        count: number;
+    }>;
+}
 
 /**
  * Converts a Category to a Falcon MenuItem, recursily nesting children.
@@ -99,6 +110,46 @@ function extractSearchResultPrice(price: PriceRangeInlineFragment | SinglePriceI
         return (p as any).min !== undefined;
     }
     return isPriceRange(price) ? price.min : price.value;
+}
+
+export function facetValuesToAggregations(facetValues: SearchProducts.FacetValues[], totalItems: number, facetValueIds: string[]): Aggregation[] {
+    // Group FacetValues by Facet
+    if (!facetValues) {
+        return [];
+    }
+    // const activeFacetValueIds = this.activeFacetValueIds();
+    const facetMap = new Map<string, FacetWithValues>();
+    for (const { count, facetValue: { id, name, facet } } of facetValues) {
+        if (count === totalItems && !facetValueIds.includes(id)) {
+            // skip FacetValues that do not ave any effect on the
+            // result set and are not active
+            continue;
+        }
+        const facetFromMap = facetMap.get(facet.id);
+        if (facetFromMap) {
+            facetFromMap.values.push({ id, name, count });
+        } else {
+            facetMap.set(facet.id, {
+                id: facet.id,
+                name: facet.name,
+                code: facet.code,
+                values: [{ id, name, count }]
+            });
+        }
+    }
+    const facets = Array.from(facetMap.values());
+    return facets.map(facet => {
+        return {
+          field: facet.code,
+          type: null,
+          buckets: facet.values.map(facetValue => ({
+              value: facetValue.id,
+              count: facetValue.count,
+              title: facetValue.name,
+          })),
+          title: facet.name,
+        };
+    });
 }
 
 /**

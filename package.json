@@ -1,6 +1,6 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.0-alpha.6",
+  "version": "0.1.1",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "repository": {
