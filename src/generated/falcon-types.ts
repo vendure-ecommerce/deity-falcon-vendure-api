@@ -58,7 +58,7 @@ export interface BundleOptionInput {
 }
 
 export interface UpdateCartItemInput {
-  itemId: number;
+  itemId: string;
   /** Magento 2 legacy both itemId and sku need to be provided for rest endpoint to work */
   sku: string;
 
@@ -66,7 +66,7 @@ export interface UpdateCartItemInput {
 }
 
 export interface RemoveCartItemInput {
-  itemId: number;
+  itemId: string;
 }
 
 export interface CouponInput {
@@ -240,6 +240,12 @@ export interface PaymentMethodInput {
   /** Selected payment-specific payload (like encrypted credit card info) */
   additionalData?: Maybe<Json>;
 }
+
+export interface IdPathEntryInput {
+  type?: Maybe<string>;
+
+  path: string;
+}
 /** Sort order direction enumeration, defines direction of sorting */
 export enum SortOrderDirection {
   asc = "asc",
@@ -368,7 +374,7 @@ export interface MenuItem {
 }
 
 export interface Category {
-  id?: Maybe<string>;
+  id: string;
 
   name?: Maybe<string>;
 
@@ -396,7 +402,7 @@ export interface ProductList {
 }
 
 export interface Product {
-  id?: Maybe<string>;
+  id: string;
 
   sku: string;
 
@@ -408,13 +414,9 @@ export interface Product {
   /** Full url to resized product image */
   thumbnail?: Maybe<string>;
 
-  priceType?: Maybe<string>;
+  price: ProductPrice;
 
-  price?: Maybe<string>;
-
-  minPrice?: Maybe<string>;
-
-  maxPrice?: Maybe<string>;
+  tierPrices?: Maybe<(Maybe<ProductTierPrice>)[]>;
 
   currency?: Maybe<string>;
 
@@ -435,6 +437,22 @@ export interface Product {
   seo?: Maybe<ProductSeo>;
 }
 
+export interface ProductPrice {
+  regular: number;
+
+  special?: Maybe<number>;
+
+  minTier?: Maybe<number>;
+}
+
+export interface ProductTierPrice {
+  qty: number;
+
+  value: number;
+
+  discount: number;
+}
+
 export interface Stock {
   isInStock?: Maybe<boolean>;
 
@@ -442,25 +460,25 @@ export interface Stock {
 }
 
 export interface ConfigurableProductOption {
-  id?: Maybe<string>;
+  id: string;
 
-  attributeId?: Maybe<string>;
+  attributeId: string;
 
   label?: Maybe<string>;
 
   position?: Maybe<string>;
 
-  productId?: Maybe<string>;
+  productId: string;
 
-  values?: Maybe<(Maybe<ConfigurableProductOptionValue>)[]>;
+  values: (Maybe<ConfigurableProductOptionValue>)[];
 }
 
 export interface ConfigurableProductOptionValue {
-  inStock?: Maybe<(Maybe<string>)[]>;
+  inStock: (Maybe<string>)[];
 
   label?: Maybe<string>;
 
-  valueIndex?: Maybe<string>;
+  valueIndex: string;
 }
 
 export interface BundleProductOption {
@@ -578,7 +596,7 @@ export interface Cart {
 }
 
 export interface CartItem {
-  itemId: number;
+  itemId: string;
 
   sku: string;
 
@@ -712,17 +730,17 @@ export interface Order {
 
   orderCurrencyCode?: Maybe<string>;
 
-  baseGrandTotal?: Maybe<string>;
+  baseGrandTotal: number;
 
-  subtotal?: Maybe<string>;
+  subtotal: number;
 
-  shippingAmount?: Maybe<string>;
+  shippingAmount: number;
 
-  taxAmount?: Maybe<string>;
+  taxAmount: number;
 
-  discountAmount?: Maybe<string>;
+  discountAmount: number;
 
-  grandTotal?: Maybe<string>;
+  grandTotal: number;
 
   items?: Maybe<(Maybe<OrderItem>)[]>;
 
@@ -738,7 +756,7 @@ export interface Order {
 }
 
 export interface OrderItem {
-  itemId: number;
+  itemId: string;
 
   sku: string;
 
@@ -798,7 +816,7 @@ export interface Customer {
 }
 
 export interface CmsPage {
-  id?: Maybe<string>;
+  id: string;
 
   title?: Maybe<string>;
 
@@ -806,7 +824,7 @@ export interface CmsPage {
 }
 
 export interface CmsBlock {
-  id?: Maybe<string>;
+  id: string;
 
   title?: Maybe<string>;
 
@@ -861,7 +879,7 @@ export interface Mutation {
 }
 
 export interface CartItemPayload {
-  itemId: number;
+  itemId: string;
 
   sku?: Maybe<string>;
 
@@ -875,7 +893,7 @@ export interface CartItemPayload {
 }
 
 export interface RemoveCartItemResponse {
-  itemId?: Maybe<number>;
+  itemId?: Maybe<string>;
 }
 
 export interface ShippingMethod {

@@ -1,6 +1,6 @@
 {
   "name": "@vendure/falcon-vendure-api",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Vendure API provider for Deity Falcon",
   "main": "dist/index.js",
   "repository": {
@@ -24,8 +24,8 @@
     "dist/**/*"
   ],
   "devDependencies": {
-    "@deity/falcon-server": "^0.2.1",
-    "@deity/falcon-shop-extension": "^0.4.1",
+    "@deity/falcon-server": "^0.4.0",
+    "@deity/falcon-shop-extension": "^0.4.6",
     "@types/eventemitter2": "^4.1.0",
     "@types/graphql": "^14.2.0",
     "@types/koa-router": "^7.0.40",

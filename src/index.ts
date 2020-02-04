@@ -200,12 +200,12 @@ module.exports = class VendureApi extends VendureApiBase {
             vendureSort.price = sort.direction === SortOrderDirection.asc ? SortOrder.ASC : SortOrder.DESC;
         }
 
-        const facetIds: string[] = [];
+        const facetValueIds: string[] = [];
         for (const filter of args.filters || []) {
             if (filter && filter.value) {
                 filter.value.forEach(v => {
                     if (v) {
-                        facetIds.push(v);
+                        facetValueIds.push(v);
                     }
                 });
             }
@@ -218,13 +218,13 @@ module.exports = class VendureApi extends VendureApiBase {
                 take,
                 skip,
                 sort: vendureSort,
-                facetIds,
+                facetValueIds,
             },
         });
 
         return {
             items: response.search.items.map(i => searchResultToProduct(i)),
-            aggregations: facetValuesToAggregations(response.search.facetValues, response.search.totalItems, facetIds),
+            aggregations: facetValuesToAggregations(response.search.facetValues, response.search.totalItems, facetValueIds),
             pagination: {
                 totalItems: response.search.totalItems,
                 currentPage,
@@ -276,23 +276,23 @@ module.exports = class VendureApi extends VendureApiBase {
         const { input } = args;
         const session: SessionData = this.session;
         const line = this.getOrderLineFor(input.itemId);
-        const result = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
+        const { adjustOrderLine } = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
             id: line.id,
             qty: input.qty,
         });
-        if (!result.adjustItemQuantity) {
+        if (!adjustOrderLine) {
             throw new Error(`Could not adjust cart quantity"`);
         }
-        return partialOrderToCartItem(result.adjustItemQuantity, input.itemId.toString());
+        return partialOrderToCartItem(adjustOrderLine, input.itemId.toString());
     }
 
     async removeCartItem(obj: any, args: RemoveCartItemMutationArgs): Promise<RemoveCartItemResponse> {
         const { input } = args;
         const line = this.getOrderLineFor(input.itemId);
-        const result = await this.query<RemoveItem.Mutation, RemoveItem.Variables>(REMOVE_ITEM, {
+        const { removeOrderLine } = await this.query<RemoveItem.Mutation, RemoveItem.Variables>(REMOVE_ITEM, {
             id: line.id,
         });
-        if (!result.removeItemFromOrder) {
+        if (!removeOrderLine) {
             throw new Error(`Could not remove item from cart"`);
         }
         return { itemId: input.itemId };
@@ -636,12 +636,12 @@ module.exports = class VendureApi extends VendureApiBase {
      * Given an itemId (aka a Vendure ProductVariant id as represented in Falcon), returns the OrderLine
      * containing that variant.
      */
-    private getOrderLineFor(itemId: number): FullOrder.Lines {
+    private getOrderLineFor(itemId: string): FullOrder.Lines {
         const session: SessionData = this.session;
         if (!session.order) {
             throw new Error(`No order found in session`);
         }
-        const line = session.order.lines.find(l => l.productVariant.id === itemId.toString());
+        const line = session.order.lines.find(l => l.productVariant.id === itemId);
         if (!line) {
             throw new Error(`No OrderLine found containing the productId "${itemId}"`);
         }

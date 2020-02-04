@@ -8,8 +8,8 @@ import {
     FetchUrlResult,
     GraphQLContext,
 } from '@deity/falcon-server-env';
-import { ConfigurableContainerConstructorParams } from '@deity/falcon-server-env/dist/models/ApiDataSource';
-import { ConfigurableConstructorParams } from '@deity/falcon-server-env/dist/types';
+import { ApiDataSourceConstructorParams } from '@deity/falcon-server-env/dist/models/ApiDataSource';
+import { IConfigurableConstructorParams } from '@deity/falcon-server-env/dist/types';
 import { Request } from 'apollo-server-env';
 import { DocumentNode, GraphQLResolveInfo, print } from 'graphql';
 
@@ -23,7 +23,7 @@ export interface VendureApiConfig {
     protocol: 'http' | 'https';
 }
 
-export type VendureApiParams = ConfigurableContainerConstructorParams & ConfigurableConstructorParams<VendureApiConfig>;
+export type VendureApiParams = ApiDataSourceConstructorParams & IConfigurableConstructorParams<VendureApiConfig>;
 
 export interface SessionData {
     cookieSession: string;

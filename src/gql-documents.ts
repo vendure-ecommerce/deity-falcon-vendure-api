@@ -52,7 +52,7 @@ export const PRODUCT_FRAGMENT = gql`
 
 export const GET_PRODUCTS_LIST = gql`
     query GetProductsList($options: ProductListOptions) {
-        products(languageCode: en, options: $options) {
+        products(options: $options) {
             items {
                 ...ProductWithVariants
             }
@@ -63,7 +63,7 @@ ${PRODUCT_FRAGMENT}`;
 
 export const GET_PRODUCT = gql`
     query GetProduct($id: ID!) {
-        product(languageCode: en, id: $id) {
+        product(id: $id) {
             ...ProductWithVariants
         }
     }
@@ -172,7 +172,7 @@ export const ADD_TO_ORDER = gql`
 
 export const ADJUST_ITEM_QTY = gql`
     mutation AdjustItemQty($id: ID!, $qty: Int!) {
-        adjustItemQuantity(orderItemId: $id, quantity: $qty) {
+        adjustOrderLine(orderLineId: $id, quantity: $qty) {
             ...PartialOrder
         }
     }
@@ -181,7 +181,7 @@ export const ADJUST_ITEM_QTY = gql`
 
 export const REMOVE_ITEM = gql`
     mutation RemoveItem($id: ID!) {
-        removeItemFromOrder(orderItemId: $id) {
+        removeOrderLine(orderLineId: $id) {
             ...PartialOrder
         }
     }

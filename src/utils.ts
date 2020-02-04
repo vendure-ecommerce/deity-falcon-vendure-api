@@ -7,7 +7,7 @@ import {
     Customer, Maybe,
     MenuItem,
     Order,
-    Product,
+    Product, ProductPrice,
     ShippingMethod,
 } from './generated/falcon-types';
 import {
@@ -66,8 +66,7 @@ export function vendureProductToProduct(vendureProduct: ProductWithVariants.Frag
         image,
         urlPath: formatProductUrl(vendureProduct.id, variantId, vendureProduct.slug),
         thumbnail: featuredAsset ? featuredAsset.preview + '?w=300&h=300&mode=crop' : null,
-        priceType: 'priceType',
-        price: formatPrice(variant.price, 'string'),
+        price: toProductPrice(variant.price),
         currency: variant.currencyCode,
         description,
         stock: {
@@ -99,7 +98,7 @@ export function searchResultToProduct(searchResult: SearchProducts.Items): Produ
         sku: searchResult.sku,
         id: searchResult.productVariantId,
         name: searchResult.productVariantName,
-        price: formatPrice(extractSearchResultPrice(searchResult.price), 'string'),
+        price: toProductPrice(extractSearchResultPrice(searchResult.price)),
         thumbnail: searchResult.productPreview + '?w=300&h=300&mode=crop',
         urlPath: formatProductUrl(searchResult.productId, searchResult.productVariantId, searchResult.slug),
     };
@@ -133,7 +132,7 @@ export function facetValuesToAggregations(facetValues: SearchProducts.FacetValue
                 id: facet.id,
                 name: facet.name,
                 code: facet.code,
-                values: [{ id, name, count }]
+                values: [{ id, name, count }],
             });
         }
     }
@@ -161,12 +160,12 @@ export function orderToCart(order: GetActiveOrder.ActiveOrder): Cart {
         virtual: false,
         items: order.lines.map(line => {
             return {
-                itemId: +line.productVariant.id,
+                itemId: line.productVariant.id,
                 sku: line.productVariant.sku,
                 qty: line.quantity,
                 name: line.productVariant.name,
-                price: formatPrice(line.unitPriceWithTax, 'number'),
-                rowTotalInclTax: formatPrice(line.totalPrice, 'number'),
+                price: formatPrice(line.unitPriceWithTax),
+                rowTotalInclTax: formatPrice(line.totalPrice),
                 thumbnailUrl: line.featuredAsset && line.featuredAsset.preview + '?preset=thumb',
                 itemOptions: line.productVariant.options.map(o => ({ value: o.name })),
             };
@@ -189,10 +188,10 @@ export function orderToTotals(order: {
     total: number;
 }): CartTotal[] {
     return [
-        {  code: 'subtotal', title: 'Subtotal', value: formatPrice(order.subTotal, 'number') },
-        {  code: 'shipping', title: 'Shipping & Handling', value: formatPrice(order.shipping, 'number') },
-        {  code: 'tax', title: 'Tax', value: formatPrice(order.total - order.totalBeforeTax, 'number') },
-        {  code: 'grand_total', title: 'Grand Total', value: formatPrice(order.total, 'number') },
+        {  code: 'subtotal', title: 'Subtotal', value: formatPrice(order.subTotal) },
+        {  code: 'shipping', title: 'Shipping & Handling', value: formatPrice(order.shipping) },
+        {  code: 'tax', title: 'Tax', value: formatPrice(order.total - order.totalBeforeTax) },
+        {  code: 'grand_total', title: 'Grand Total', value: formatPrice(order.total) },
     ];
 }
 
@@ -209,7 +208,7 @@ export function partialOrderToCartItem(order: PartialOrder.Fragment, variantId: 
     return {
         name: addedLine.productVariant.name,
         price: addedLine.unitPriceWithTax,
-        itemId: +addedLine.productVariant.id,
+        itemId: addedLine.productVariant.id,
         qty: addedLine.quantity,
         sku: addedLine.productVariant.sku,
         productType: '',
@@ -222,12 +221,12 @@ export function partialOrderToCartItem(order: PartialOrder.Fragment, variantId: 
 export function shippingQuoteToShippingMethod(quote: GetShippingMethods.EligibleShippingMethods): ShippingMethod {
     return {
         carrierTitle: quote.description,
-        amount: formatPrice(quote.price, 'number'),
+        amount: formatPrice(quote.price),
         carrierCode: quote.id,
         methodCode: quote.id,
         methodTitle: quote.description,
-        priceExclTax: formatPrice(quote.price, 'number'),
-        priceInclTax: formatPrice(quote.price, 'number'),
+        priceExclTax: formatPrice(quote.price),
+        priceInclTax: formatPrice(quote.price),
     };
 }
 
@@ -276,22 +275,24 @@ export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
         status: order.state,
         items: order.lines.map(line => {
             return {
-                itemId: +line.productVariant.id,
+                itemId: line.productVariant.id,
                 sku: line.productVariant.sku,
                 qty: line.quantity,
                 name: line.productVariant.name,
-                price: formatPrice(line.unitPriceWithTax, 'number'),
-                rowTotalInclTax: formatPrice(line.totalPrice, 'number'),
+                price: formatPrice(line.unitPriceWithTax),
+                rowTotalInclTax: formatPrice(line.totalPrice),
                 thumbnailUrl: line.featuredAsset && line.featuredAsset.preview + '?preset=thumb',
                 itemOptions: line.productVariant.options.map(o => ({ value: o.name })),
             };
         }),
         couponCode: '',
         orderCurrencyCode: order.currencyCode,
-        subtotal: formatPrice(order.subTotal, 'string'),
-        shippingAmount: formatPrice(order.shipping, 'string'),
-        taxAmount: formatPrice(order.total - order.totalBeforeTax, 'string'),
-        grandTotal: formatPrice(order.total, 'string'),
+        subtotal: formatPrice(order.subTotal),
+        shippingAmount: formatPrice(order.shipping),
+        taxAmount: formatPrice(order.total - order.totalBeforeTax),
+        grandTotal: formatPrice(order.total),
+        baseGrandTotal: formatPrice(order.total),
+        discountAmount: 0, // TODO: which figure does this refer to in Vendure?
         shippingAddress: order.shippingAddress ? vendureAddressToFalcon(order.shippingAddress) : null,
         billingAddress: order.shippingAddress ? vendureAddressToFalcon(order.shippingAddress) : null,
         paymentMethodName,
@@ -332,12 +333,14 @@ function formatProductUrl(prodId: string, variantId: string, slug: string): stri
 
 /**
  * Vendure stores all price as cent integers, whereas Falcon wants them as a string decimal.
- * For some reason, the Falcon schema sometimes has prices as strings and sometimes as numbers,
- * hence the "format" parameter.
  */
-function formatPrice(priceInCents: number, format: 'string'): string;
-function formatPrice(priceInCents: number, format: 'number'): number;
-function formatPrice(priceInCents: number, format: 'string' | 'number'): string | number {
+function formatPrice(priceInCents: number): number {
     const divided = priceInCents / 100;
-    return format === 'string' ? divided.toString(10) : divided;
+    return divided;
+}
+
+function toProductPrice(priceInCents: number): ProductPrice {
+    return {
+      regular: formatPrice(priceInCents),
+    };
 }
