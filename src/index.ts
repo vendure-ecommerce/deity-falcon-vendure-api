@@ -1,4 +1,4 @@
-import { addResolveFunctionsToSchema } from 'graphql-tools';
+import { addResolveFunctionsToSchema, IResolvers } from 'graphql-tools';
 
 import {
     AddAddressMutationArgs,
@@ -144,12 +144,17 @@ module.exports = class VendureApi extends VendureApiBase {
      * Adds additional resolve functions to the stitched GQL schema for the sake of data-splitting
      */
     addTypeResolvers() {
-        const resolvers = {
+        const resolvers: IResolvers = {
             Category: {
                 products: (...args: [Category, ProductsCategoryArgs]) => this.categoryProducts(...args),
             },
         };
-        addResolveFunctionsToSchema({ schema: (this.gqlServerConfig as any).schema, resolvers });
+
+        addResolveFunctionsToSchema({
+            schema: this.gqlServerConfig.schema,
+            resolvers,
+            resolverValidationOptions: { allowResolversNotInSchema: true, requireResolversForResolveType: false },
+        });
     }
 
     async fetchBackendConfig(): Promise<any> {
