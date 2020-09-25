@@ -102,15 +102,15 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@deity/falcon-errors@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/@deity/falcon-errors/-/falcon-errors-0.1.2.tgz#57f27b75a1568780abbaac919245992d9bca4ec0"
-  integrity sha512-O8/TWsJp49y1ZXRVoZDla7qdaoCnAsERfNUH4U18OfPz10FeoR5QbeaiODrTE9m2+CPt/O/LE6HRUN+XRdYUqg==
+"@deity/falcon-errors@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@deity/falcon-errors/-/falcon-errors-1.3.1.tgz#2fe4c28fae2151055b6fb3251197e32f0733aca1"
+  integrity sha512-ezINiBx12Bq4glChcJTUdO2nJfVYMOQkXw7XvJh7m06XoZf7z3s3ZGWDEEA005OtzMpAEl37gsOklo11F1dF1A==
 
-"@deity/falcon-logger@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/@deity/falcon-logger/-/falcon-logger-1.0.2.tgz#7582dad19d253f100ce29d14531038d87d0e37db"
-  integrity sha512-Y4RKZnAwPCEVSb3qLfeiJAw3IIjSpT0btdcco79lrI7ghxtf/IH9eZJ5MCE+bFooPYBgi4PdxfBffw8EkzNUXA==
+"@deity/falcon-logger@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@deity/falcon-logger/-/falcon-logger-1.3.1.tgz#52e80ec957126d65eec23413c370e46c65092ab5"
+  integrity sha512-wIC8smssa5t4dVOpoQR3mg3AjEpKH9djUxjrC56e/19FTCtGSZU9svJubANU7+iLuvzkrusnLXsMpEFDjQo9aA==
   dependencies:
     "@hapi/bourne" "1.3.2"
     args "^5.0.1"
@@ -123,12 +123,12 @@
     readable-stream "^3.4.0"
     split2 "^3.1.1"
 
-"@deity/falcon-server-env@^0.1.9":
-  version "0.1.9"
-  resolved "https://registry.npmjs.org/@deity/falcon-server-env/-/falcon-server-env-0.1.9.tgz#1fcc8bc350bf6487d67ae677c044ece693da8baa"
-  integrity sha512-XIfLJKjRGT7heeryKo5NeG6QVx5E3/UlZ5UiEpA6l+vYfgwojbmqHkm5MUO1B1p8KqAF3b1dHXBr9DLON8DiWw==
+"@deity/falcon-server-env@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@deity/falcon-server-env/-/falcon-server-env-1.3.1.tgz#1176f7dd253096df1eb6090116ad9f09be050d82"
+  integrity sha512-tme+fR17i4prUrVKfDDzFgFYH7qSYFhK1t1x4vj4wgJFihWHG+lCRzzkRTFWJFDGMXSGlk+H/lfNhLpNQJ1uIQ==
   dependencies:
-    "@deity/falcon-logger" "^1.0.2"
+    "@deity/falcon-logger" "^1.3.1"
     apollo-datasource "0.3.1"
     apollo-datasource-rest "0.3.2"
     apollo-server-caching "0.3.1"
@@ -140,14 +140,14 @@
     qs "6.6.0"
     striptags "3.1.1"
 
-"@deity/falcon-server@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.npmjs.org/@deity/falcon-server/-/falcon-server-0.4.0.tgz#a02e5a37c3454d6addbb6628d0bb004f1c01d41f"
-  integrity sha512-l2AMsOC0PvKNvgfehh+3W75aHIKS9CY0qgKv7diSXllxBE3wj9nmEdMiWl4Gxmah1N/WuGkNZIvOYGjk4h3OsQ==
+"@deity/falcon-server@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@deity/falcon-server/-/falcon-server-1.3.1.tgz#0dbafad2a1d0959d6b696b388107718f6abcf073"
+  integrity sha512-h1hc+APLFOJMdVcsyXeG32JjsAqLT31YmN9uVuindiBCswzcTZTBmFl9ulTEXOWQU5GSf28CwActoCNtav6uvw==
   dependencies:
-    "@deity/falcon-errors" "^0.1.2"
-    "@deity/falcon-logger" "^1.0.2"
-    "@deity/falcon-server-env" "^0.1.9"
+    "@deity/falcon-errors" "^1.3.1"
+    "@deity/falcon-logger" "^1.3.1"
+    "@deity/falcon-server-env" "^1.3.1"
     "@koa/cors" "2.2.2"
     apollo-server-cache-memcached "0.3.1"
     apollo-server-cache-redis "0.3.1"
@@ -167,12 +167,12 @@
     lodash "4.17.15"
     source-map-support "0.5.12"
 
-"@deity/falcon-shop-extension@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.npmjs.org/@deity/falcon-shop-extension/-/falcon-shop-extension-0.4.6.tgz#7c277af620327cabc66e4bcf1133b31a70d6465b"
-  integrity sha512-UoKmt6dF4vjeq7qehg6EyyUlmYo4K8IDEYHNTfcP7e/UqoePh5xl4apkQgBOzi63aUw5bs6loKnzvKjD7CmSXQ==
+"@deity/falcon-shop-extension@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@deity/falcon-shop-extension/-/falcon-shop-extension-1.3.1.tgz#ae35ed23af393b369abf07df15cfeefed00cf904"
+  integrity sha512-fuXtjlt1ipOKdTrpgqd5OemVHXqbZLkEqo3wOqCZc4w8pVp5lNtFtLPHfkt1S8JKQTrr9CwFRzqios6zrPotPQ==
   dependencies:
-    "@deity/falcon-server-env" "^0.1.9"
+    "@deity/falcon-server-env" "^1.3.1"
     graphql-tools "^4.0.0"
 
 "@hapi/bourne@1.3.2", "@hapi/bourne@^1.3.2":

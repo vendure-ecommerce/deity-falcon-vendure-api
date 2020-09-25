@@ -160,7 +160,7 @@ export function orderToCart(order: GetActiveOrder.ActiveOrder): Cart {
         virtual: false,
         items: order.lines.map(line => {
             return {
-                itemId: line.productVariant.id,
+                itemId: Number(line.productVariant.id),
                 sku: line.productVariant.sku,
                 qty: line.quantity,
                 name: line.productVariant.name,
@@ -208,7 +208,7 @@ export function partialOrderToCartItem(order: PartialOrder.Fragment, variantId: 
     return {
         name: addedLine.productVariant.name,
         price: addedLine.unitPriceWithTax,
-        itemId: addedLine.productVariant.id,
+        itemId: Number(addedLine.productVariant.id),
         qty: addedLine.quantity,
         sku: addedLine.productVariant.sku,
         productType: '',
@@ -275,7 +275,7 @@ export function vendureOrderToFalcon(order: FullOrder.Fragment): Order {
         status: order.state,
         items: order.lines.map(line => {
             return {
-                itemId: line.productVariant.id,
+                itemId: Number(line.productVariant.id),
                 sku: line.productVariant.sku,
                 qty: line.quantity,
                 name: line.productVariant.name,

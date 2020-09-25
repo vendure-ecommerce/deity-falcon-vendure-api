@@ -24,8 +24,8 @@
     "dist/**/*"
   ],
   "devDependencies": {
-    "@deity/falcon-server": "^0.4.0",
-    "@deity/falcon-shop-extension": "^0.4.6",
+    "@deity/falcon-server": "^1.3.1",
+    "@deity/falcon-shop-extension": "^1.3.1",
     "@types/eventemitter2": "^4.1.0",
     "@types/graphql": "^14.2.0",
     "@types/koa-router": "^7.0.40",

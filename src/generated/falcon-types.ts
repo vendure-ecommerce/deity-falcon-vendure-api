@@ -58,7 +58,7 @@ export interface BundleOptionInput {
 }
 
 export interface UpdateCartItemInput {
-  itemId: string;
+  itemId: number;
   /** Magento 2 legacy both itemId and sku need to be provided for rest endpoint to work */
   sku: string;
 
@@ -66,7 +66,7 @@ export interface UpdateCartItemInput {
 }
 
 export interface RemoveCartItemInput {
-  itemId: string;
+  itemId: number;
 }
 
 export interface CouponInput {
@@ -596,7 +596,7 @@ export interface Cart {
 }
 
 export interface CartItem {
-  itemId: string;
+  itemId: number;
 
   sku: string;
 
@@ -756,7 +756,7 @@ export interface Order {
 }
 
 export interface OrderItem {
-  itemId: string;
+  itemId: number;
 
   sku: string;
 
@@ -879,7 +879,7 @@ export interface Mutation {
 }
 
 export interface CartItemPayload {
-  itemId: string;
+  itemId: number;
 
   sku?: Maybe<string>;
 
@@ -893,7 +893,7 @@ export interface CartItemPayload {
 }
 
 export interface RemoveCartItemResponse {
-  itemId?: Maybe<string>;
+  itemId?: Maybe<number>;
 }
 
 export interface ShippingMethod {

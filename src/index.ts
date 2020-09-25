@@ -275,7 +275,7 @@ module.exports = class VendureApi extends VendureApiBase {
     async updateCartItem(obj: any, args: UpdateCartItemMutationArgs): Promise<CartItemPayload> {
         const { input } = args;
         const session: SessionData = this.session;
-        const line = this.getOrderLineFor(input.itemId);
+        const line = this.getOrderLineFor(`${input.itemId}`);
         const { adjustOrderLine } = await this.query<AdjustItemQty.Mutation, AdjustItemQty.Variables>(ADJUST_ITEM_QTY, {
             id: line.id,
             qty: input.qty,
@@ -288,7 +288,7 @@ module.exports = class VendureApi extends VendureApiBase {
 
     async removeCartItem(obj: any, args: RemoveCartItemMutationArgs): Promise<RemoveCartItemResponse> {
         const { input } = args;
-        const line = this.getOrderLineFor(input.itemId);
+        const line = this.getOrderLineFor(`${input.itemId}`);
         const { removeOrderLine } = await this.query<RemoveItem.Mutation, RemoveItem.Variables>(REMOVE_ITEM, {
             id: line.id,
         });

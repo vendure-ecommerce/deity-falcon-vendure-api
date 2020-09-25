@@ -6,9 +6,9 @@ This is an experimental api provider for [DEITY Falcon](https://github.com/deity
 
 This package has been tested against:
 
-* @deity/falcon-server v0.4.0
-* @deity/falcon-shop-extension v0.4.6
-* @deity/falcon-client v0.4.1
+* @deity/falcon-server v0.15.1
+* @deity/falcon-shop-extension v0.15.1
+* @deity/falcon-client v0.15.1
 * @vendure/core v0.15.1
 
 Since both DEITY Falcon and Vendure are under active development, expect potential instability if attempting to use newer versions than the above.
