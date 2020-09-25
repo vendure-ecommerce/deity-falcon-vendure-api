@@ -107,72 +107,6 @@ export interface NumberRange {
   end: number;
 }
 
-export interface HistoryEntryListOptions {
-  skip?: Maybe<number>;
-
-  take?: Maybe<number>;
-
-  sort?: Maybe<HistoryEntrySortParameter>;
-
-  filter?: Maybe<HistoryEntryFilterParameter>;
-}
-
-export interface HistoryEntrySortParameter {
-  id?: Maybe<SortOrder>;
-
-  createdAt?: Maybe<SortOrder>;
-
-  updatedAt?: Maybe<SortOrder>;
-}
-
-export interface HistoryEntryFilterParameter {
-  createdAt?: Maybe<DateOperators>;
-
-  updatedAt?: Maybe<DateOperators>;
-
-  isPublic?: Maybe<BooleanOperators>;
-
-  type?: Maybe<StringOperators>;
-}
-
-export interface CollectionListOptions {
-  skip?: Maybe<number>;
-
-  take?: Maybe<number>;
-
-  sort?: Maybe<CollectionSortParameter>;
-
-  filter?: Maybe<CollectionFilterParameter>;
-}
-
-export interface CollectionSortParameter {
-  id?: Maybe<SortOrder>;
-
-  createdAt?: Maybe<SortOrder>;
-
-  updatedAt?: Maybe<SortOrder>;
-
-  name?: Maybe<SortOrder>;
-
-  position?: Maybe<SortOrder>;
-
-  description?: Maybe<SortOrder>;
-}
-
-export interface CollectionFilterParameter {
-  createdAt?: Maybe<DateOperators>;
-
-  updatedAt?: Maybe<DateOperators>;
-
-  languageCode?: Maybe<StringOperators>;
-
-  name?: Maybe<StringOperators>;
-
-  position?: Maybe<NumberOperators>;
-
-  description?: Maybe<StringOperators>;
-}
-
 export interface ProductVariantListOptions {
   skip?: Maybe<number>;
 
@@ -221,6 +155,120 @@ export interface ProductVariantFilterParameter {
   priceWithTax?: Maybe<NumberOperators>;
 }
 
+export interface CustomerListOptions {
+  skip?: Maybe<number>;
+
+  take?: Maybe<number>;
+
+  sort?: Maybe<CustomerSortParameter>;
+
+  filter?: Maybe<CustomerFilterParameter>;
+}
+
+export interface CustomerSortParameter {
+  id?: Maybe<SortOrder>;
+
+  createdAt?: Maybe<SortOrder>;
+
+  updatedAt?: Maybe<SortOrder>;
+
+  title?: Maybe<SortOrder>;
+
+  firstName?: Maybe<SortOrder>;
+
+  lastName?: Maybe<SortOrder>;
+
+  phoneNumber?: Maybe<SortOrder>;
+
+  emailAddress?: Maybe<SortOrder>;
+}
+
+export interface CustomerFilterParameter {
+  createdAt?: Maybe<DateOperators>;
+
+  updatedAt?: Maybe<DateOperators>;
+
+  title?: Maybe<StringOperators>;
+
+  firstName?: Maybe<StringOperators>;
+
+  lastName?: Maybe<StringOperators>;
+
+  phoneNumber?: Maybe<StringOperators>;
+
+  emailAddress?: Maybe<StringOperators>;
+}
+
+export interface HistoryEntryListOptions {
+  skip?: Maybe<number>;
+
+  take?: Maybe<number>;
+
+  sort?: Maybe<HistoryEntrySortParameter>;
+
+  filter?: Maybe<HistoryEntryFilterParameter>;
+}
+
+export interface HistoryEntrySortParameter {
+  id?: Maybe<SortOrder>;
+
+  createdAt?: Maybe<SortOrder>;
+
+  updatedAt?: Maybe<SortOrder>;
+}
+
+export interface HistoryEntryFilterParameter {
+  createdAt?: Maybe<DateOperators>;
+
+  updatedAt?: Maybe<DateOperators>;
+
+  isPublic?: Maybe<BooleanOperators>;
+
+  type?: Maybe<StringOperators>;
+}
+
+export interface CollectionListOptions {
+  skip?: Maybe<number>;
+
+  take?: Maybe<number>;
+
+  sort?: Maybe<CollectionSortParameter>;
+
+  filter?: Maybe<CollectionFilterParameter>;
+}
+
+export interface CollectionSortParameter {
+  id?: Maybe<SortOrder>;
+
+  createdAt?: Maybe<SortOrder>;
+
+  updatedAt?: Maybe<SortOrder>;
+
+  name?: Maybe<SortOrder>;
+
+  slug?: Maybe<SortOrder>;
+
+  position?: Maybe<SortOrder>;
+
+  description?: Maybe<SortOrder>;
+}
+
+export interface CollectionFilterParameter {
+  createdAt?: Maybe<DateOperators>;
+
+  updatedAt?: Maybe<DateOperators>;
+
+  languageCode?: Maybe<StringOperators>;
+
+  name?: Maybe<StringOperators>;
+
+  slug?: Maybe<StringOperators>;
+
+  position?: Maybe<NumberOperators>;
+
+  description?: Maybe<StringOperators>;
+}
+
 export interface ProductListOptions {
   skip?: Maybe<number>;
 
@@ -264,7 +312,11 @@ export interface SearchInput {
 
   facetValueIds?: Maybe<string[]>;
 
+  facetValueOperator?: Maybe<LogicalOperator>;
+
   collectionId?: Maybe<string>;
+
+  collectionSlug?: Maybe<string>;
 
   groupByProduct?: Maybe<boolean>;
 
@@ -306,6 +358,10 @@ export interface CreateAddressInput {
 
   customFields?: Maybe<Json>;
 }
+
+export interface UpdateOrderInput {
+  customFields?: Maybe<Json>;
+}
 /** Passed as input to the `addPaymentToOrder` mutation. */
 export interface PaymentInput {
   /** This field should correspond to the `code` property of a PaymentMethodHandler. */
@@ -328,6 +384,16 @@ export interface CreateCustomerInput {
   customFields?: Maybe<Json>;
 }
 
+export interface AuthenticationInput {
+  native?: Maybe<NativeAuthInput>;
+}
+
+export interface NativeAuthInput {
+  username: string;
+
+  password: string;
+}
+
 export interface RegisterCustomerInput {
   emailAddress: string;
 
@@ -336,6 +402,8 @@ export interface RegisterCustomerInput {
   firstName?: Maybe<string>;
 
   lastName?: Maybe<string>;
+
+  phoneNumber?: Maybe<string>;
 
   password?: Maybe<string>;
 }
@@ -383,8 +451,6 @@ export interface UpdateAddressInput {
 export interface ConfigArgInput {
   name: string;
 
-  type: string;
-
   value: string;
 }
 
@@ -393,191 +459,164 @@ export interface ConfigurableOperationInput {
 
   arguments: ConfigArgInput[];
 }
-/** @description ISO 639-1 language code @docsCategory common */
+/** @description Languages in the form of a ISO 639-1 language code with optional region or script modifier (e.g. de_AT). The selection available is based on the [Unicode CLDR summary list](https://unicode-org.github.io/cldr-staging/charts/37/summary/root.html) and includes the major spoken languages of the world and any widely-used variants. @docsCategory common */
 export enum LanguageCode {
-  aa = "aa",
-  ab = "ab",
   af = "af",
   ak = "ak",
   sq = "sq",
   am = "am",
   ar = "ar",
-  an = "an",
   hy = "hy",
   as = "as",
-  av = "av",
-  ae = "ae",
-  ay = "ay",
   az = "az",
-  ba = "ba",
   bm = "bm",
+  bn = "bn",
   eu = "eu",
   be = "be",
-  bn = "bn",
-  bh = "bh",
-  bi = "bi",
   bs = "bs",
   br = "br",
   bg = "bg",
   my = "my",
   ca = "ca",
-  ch = "ch",
   ce = "ce",
   zh = "zh",
+  zh_Hans = "zh_Hans",
+  zh_Hant = "zh_Hant",
   cu = "cu",
-  cv = "cv",
   kw = "kw",
   co = "co",
-  cr = "cr",
+  hr = "hr",
   cs = "cs",
   da = "da",
-  dv = "dv",
   nl = "nl",
+  nl_BE = "nl_BE",
   dz = "dz",
   en = "en",
+  en_AU = "en_AU",
+  en_CA = "en_CA",
+  en_GB = "en_GB",
+  en_US = "en_US",
   eo = "eo",
   et = "et",
   ee = "ee",
   fo = "fo",
-  fj = "fj",
   fi = "fi",
   fr = "fr",
-  fy = "fy",
+  fr_CA = "fr_CA",
+  fr_CH = "fr_CH",
   ff = "ff",
+  gl = "gl",
+  lg = "lg",
   ka = "ka",
   de = "de",
-  gd = "gd",
-  ga = "ga",
-  gl = "gl",
-  gv = "gv",
+  de_AT = "de_AT",
+  de_CH = "de_CH",
   el = "el",
-  gn = "gn",
   gu = "gu",
   ht = "ht",
   ha = "ha",
   he = "he",
-  hz = "hz",
   hi = "hi",
-  ho = "ho",
-  hr = "hr",
   hu = "hu",
-  ig = "ig",
   is = "is",
-  io = "io",
-  ii = "ii",
-  iu = "iu",
-  ie = "ie",
-  ia = "ia",
+  ig = "ig",
   id = "id",
-  ik = "ik",
+  ia = "ia",
+  ga = "ga",
   it = "it",
-  jv = "jv",
   ja = "ja",
+  jv = "jv",
   kl = "kl",
   kn = "kn",
   ks = "ks",
-  kr = "kr",
   kk = "kk",
   km = "km",
   ki = "ki",
   rw = "rw",
-  ky = "ky",
-  kv = "kv",
-  kg = "kg",
   ko = "ko",
-  kj = "kj",
   ku = "ku",
+  ky = "ky",
   lo = "lo",
   la = "la",
   lv = "lv",
-  li = "li",
   ln = "ln",
   lt = "lt",
-  lb = "lb",
   lu = "lu",
-  lg = "lg",
+  lb = "lb",
   mk = "mk",
-  mh = "mh",
+  mg = "mg",
+  ms = "ms",
   ml = "ml",
+  mt = "mt",
+  gv = "gv",
   mi = "mi",
   mr = "mr",
-  ms = "ms",
-  mg = "mg",
-  mt = "mt",
   mn = "mn",
-  na = "na",
-  nv = "nv",
-  nr = "nr",
-  nd = "nd",
-  ng = "ng",
   ne = "ne",
-  nn = "nn",
+  nd = "nd",
+  se = "se",
   nb = "nb",
-  no = "no",
+  nn = "nn",
   ny = "ny",
-  oc = "oc",
-  oj = "oj",
   or = "or",
   om = "om",
   os = "os",
-  pa = "pa",
+  ps = "ps",
   fa = "fa",
-  pi = "pi",
+  fa_AF = "fa_AF",
   pl = "pl",
   pt = "pt",
-  ps = "ps",
+  pt_BR = "pt_BR",
+  pt_PT = "pt_PT",
+  pa = "pa",
   qu = "qu",
-  rm = "rm",
   ro = "ro",
+  ro_MD = "ro_MD",
+  rm = "rm",
   rn = "rn",
   ru = "ru",
+  sm = "sm",
   sg = "sg",
   sa = "sa",
+  gd = "gd",
+  sr = "sr",
+  sn = "sn",
+  ii = "ii",
+  sd = "sd",
   si = "si",
   sk = "sk",
   sl = "sl",
-  se = "se",
-  sm = "sm",
-  sn = "sn",
-  sd = "sd",
   so = "so",
   st = "st",
   es = "es",
-  sc = "sc",
-  sr = "sr",
-  ss = "ss",
+  es_ES = "es_ES",
+  es_MX = "es_MX",
   su = "su",
   sw = "sw",
+  sw_CD = "sw_CD",
   sv = "sv",
-  ty = "ty",
+  tg = "tg",
   ta = "ta",
   tt = "tt",
   te = "te",
-  tg = "tg",
-  tl = "tl",
   th = "th",
   bo = "bo",
   ti = "ti",
   to = "to",
-  tn = "tn",
-  ts = "ts",
-  tk = "tk",
   tr = "tr",
-  tw = "tw",
-  ug = "ug",
+  tk = "tk",
   uk = "uk",
   ur = "ur",
+  ug = "ug",
   uz = "uz",
-  ve = "ve",
   vi = "vi",
   vo = "vo",
   cy = "cy",
-  wa = "wa",
+  fy = "fy",
   wo = "wo",
   xh = "xh",
   yi = "yi",
   yo = "yo",
-  za = "za",
   zu = "zu"
 }
 /** @description ISO 4217 currency code @docsCategory common */
@@ -608,8 +647,8 @@ export enum CurrencyCode {
   BYN = "BYN",
   BZD = "BZD",
   CAD = "CAD",
-  CHE = "CHE",
-  CHW = "CHW",
+  CDF = "CDF",
+  CHF = "CHF",
   CLP = "CLP",
   CNY = "CNY",
   COP = "COP",
@@ -763,6 +802,20 @@ export enum AdjustmentType {
 }
 
 export enum HistoryEntryType {
+  CUSTOMER_REGISTERED = "CUSTOMER_REGISTERED",
+  CUSTOMER_VERIFIED = "CUSTOMER_VERIFIED",
+  CUSTOMER_DETAIL_UPDATED = "CUSTOMER_DETAIL_UPDATED",
+  CUSTOMER_ADDED_TO_GROUP = "CUSTOMER_ADDED_TO_GROUP",
+  CUSTOMER_REMOVED_FROM_GROUP = "CUSTOMER_REMOVED_FROM_GROUP",
+  CUSTOMER_ADDRESS_CREATED = "CUSTOMER_ADDRESS_CREATED",
+  CUSTOMER_ADDRESS_UPDATED = "CUSTOMER_ADDRESS_UPDATED",
+  CUSTOMER_ADDRESS_DELETED = "CUSTOMER_ADDRESS_DELETED",
+  CUSTOMER_PASSWORD_UPDATED = "CUSTOMER_PASSWORD_UPDATED",
+  CUSTOMER_PASSWORD_RESET_REQUESTED = "CUSTOMER_PASSWORD_RESET_REQUESTED",
+  CUSTOMER_PASSWORD_RESET_VERIFIED = "CUSTOMER_PASSWORD_RESET_VERIFIED",
+  CUSTOMER_EMAIL_UPDATE_REQUESTED = "CUSTOMER_EMAIL_UPDATE_REQUESTED",
+  CUSTOMER_EMAIL_UPDATE_VERIFIED = "CUSTOMER_EMAIL_UPDATE_VERIFIED",
+  CUSTOMER_NOTE = "CUSTOMER_NOTE",
   ORDER_STATE_TRANSITION = "ORDER_STATE_TRANSITION",
   ORDER_PAYMENT_TRANSITION = "ORDER_PAYMENT_TRANSITION",
   ORDER_FULLFILLMENT = "ORDER_FULLFILLMENT",
@@ -802,6 +855,11 @@ export enum Permission {
   ReadSettings = "ReadSettings",
   UpdateSettings = "UpdateSettings",
   DeleteSettings = "DeleteSettings"
+}
+
+export enum LogicalOperator {
+  AND = "AND",
+  OR = "OR"
 }
 
 export enum StockMovementType {
