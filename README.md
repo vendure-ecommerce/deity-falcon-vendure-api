@@ -1,5 +1,11 @@
 # Falcon Vendure API
 
+**Status: not under development**
+
+_November 2020_ | This project is no longer under active development by the Vendure maintainers. If a community member would like to take over maintenance, please open an issue stating so.
+
+----
+
 This is an experimental api provider for [DEITY Falcon](https://github.com/deity-io/falcon). The goal is to allow Falcon to be used as a storefront for [Vendure](https://www.vendure.io/).
 
 ## Supported Versions
