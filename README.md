@@ -2,7 +2,7 @@
 
 **Status: not under development**
 
-_November 2020_ | This project is no longer under active development by the Vendure maintainers. If a community member would like to take over maintenance, please open an issue stating so.
+_November 2020_ | This project is no longer under active development by the Vendure maintainers. Deity Falcon has gone closed-source so it is no longer feasible to support an integration.
 
 ----
 
